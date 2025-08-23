@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "eym_agent" "\0"
+            VALUE "FileDescription", "qrsc_pc" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "eym_agent" "\0"
+            VALUE "InternalName", "qrsc_pc" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2025 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "eym_agent.exe" "\0"
-            VALUE "ProductName", "eym_agent" "\0"
+            VALUE "OriginalFilename", "qrsc_pc.exe" "\0"
+            VALUE "ProductName", "qrsc_pc" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

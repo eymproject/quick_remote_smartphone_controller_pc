@@ -11,6 +11,7 @@ class QRCodeDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: Colors.white,
       child: Container(
         width: 400,
         constraints: BoxConstraints(
@@ -28,7 +29,11 @@ class QRCodeDialog extends StatelessWidget {
                     // タイトル
                     Row(
                       children: [
-                        const Icon(Icons.qr_code, size: 32, color: Colors.blue),
+                        const Icon(
+                          Icons.qr_code,
+                          size: 32,
+                          color: Colors.black,
+                        ),
                         const SizedBox(width: 12),
                         const Expanded(
                           child: Text(
@@ -53,14 +58,13 @@ class QRCodeDialog extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade300),
+                        border: Border.all(color: Colors.black),
                       ),
                       child: QrImageView(
                         data: serverUrl,
                         version: QrVersions.auto,
                         size: 200.0,
                         backgroundColor: Colors.white,
-                        foregroundColor: Colors.black,
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -70,9 +74,9 @@ class QRCodeDialog extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.blue.shade50,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.blue.shade200),
+                        border: Border.all(color: Colors.black),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,7 +85,7 @@ class QRCodeDialog extends StatelessWidget {
                             children: [
                               Icon(
                                 Icons.info_outline,
-                                color: Colors.blue.shade700,
+                                color: Colors.black,
                                 size: 20,
                               ),
                               const SizedBox(width: 8),
@@ -90,7 +94,7 @@ class QRCodeDialog extends StatelessWidget {
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.blue.shade700,
+                                  color: Colors.black,
                                 ),
                               ),
                             ],
@@ -104,7 +108,7 @@ class QRCodeDialog extends StatelessWidget {
                             '5. 自動で接続完了！',
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.blue.shade800,
+                              color: Colors.black,
                               height: 1.5,
                             ),
                           ),
@@ -122,7 +126,7 @@ class QRCodeDialog extends StatelessWidget {
                             icon: const Icon(Icons.check),
                             label: const Text('閉じる'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
+                              backgroundColor: Colors.black,
                               foregroundColor: Colors.white,
                             ),
                           ),

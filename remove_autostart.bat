@@ -69,7 +69,7 @@ if %errorlevel% == 0 (
     echo.
     echo 📝 注意事項:
     echo - 次回のWindows起動時からEYM Agentは自動起動しません
-    echo - 手動でeym_agent.exeを実行してください
+    echo - qrsc_pc.exeを実行してください
     echo - 再度自動起動したい場合は install_autostart.bat を実行してください
     echo.
     echo 📝 現在実行中のEYM Agentについて:

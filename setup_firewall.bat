@@ -1,18 +1,18 @@
 @echo off
 chcp 65001 >nul
-title EYM Agent ファイアウォール設定
+title QRSC_PC ファイアウォール設定
 
 echo.
 echo ========================================
-echo   EYM Agent ファイアウォール設定
+echo   QRSC_PC ファイアウォール設定
 echo ========================================
 echo.
-echo このツールはEYM Agentが正常に動作するために
+echo このツールはQRSC_PCが正常に動作するために
 echo Windows Defenderファイアウォールの設定を行います。
 echo.
 echo 設定内容:
 echo - ポート8080（TCP）の受信を許可
-echo - プログラム名: "EYM Agent"
+echo - プログラム名: "QRSC_PC"
 echo.
 
 :: 管理者権限チェック
@@ -37,28 +37,28 @@ echo.
 
 :: 既存のルールを削除（重複防止）
 echo 既存の設定をクリーンアップ中...
-netsh advfirewall firewall delete rule name="EYM Agent" >nul 2>&1
+netsh advfirewall firewall delete rule name="QRSC_PC" >nul 2>&1
 
 :: 新しいルールを追加
 echo ポート8080の受信許可ルールを追加中...
-netsh advfirewall firewall add rule name="EYM Agent" dir=in action=allow protocol=TCP localport=8080 profile=any
+netsh advfirewall firewall add rule name="QRSC_PC" dir=in action=allow protocol=TCP localport=8080 profile=any
 
 if %errorlevel% == 0 (
     echo.
     echo ✅ ファイアウォール設定が完了しました！
     echo.
     echo 設定内容:
-    echo - ルール名: EYM Agent
+    echo - ルール名: QRSC_PC
     echo - 方向: 受信
     echo - プロトコル: TCP
     echo - ポート: 8080
     echo - 動作: 許可
     echo - プロファイル: すべて（パブリック、プライベート、ドメイン）
     echo.
-    echo 🎉 EYM Agentが正常に動作するようになりました！
+    echo 🎉 QRSC_PCが正常に動作するようになりました！
     echo.
     echo 次の手順:
-    echo 1. EYM Agentを起動
+    echo 1. QRSC_PCを起動
     echo 2. スマホでQRコードをスキャン
     echo 3. 接続完了！
     echo.
@@ -77,14 +77,14 @@ if %errorlevel% == 0 (
     echo 3. 詳細設定 → 受信の規則 → 新しい規則
     echo 4. ポート → TCP → 特定のローカルポート: 8080
     echo 5. 接続を許可する → すべてのプロファイル
-    echo 6. 名前: "EYM Agent" → 完了
+    echo 6. 名前: "QRSC_PC" → 完了
     echo.
 )
 
 echo.
 echo 設定確認方法:
 echo Windows設定 → Windows セキュリティ → ファイアウォールとネットワーク保護
-echo → 詳細設定 → 受信の規則 → "EYM Agent" を確認
+echo → 詳細設定 → 受信の規則 → "QRSC_PC" を確認
 echo.
 echo 何かキーを押して終了...
 pause >nul

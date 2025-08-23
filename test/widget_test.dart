@@ -6,13 +6,12 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:eym_agent/main.dart';
+import 'package:qrsc_pc/main.dart';
 
 void main() {
   testWidgets('EYM Agent app smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const EYMAgentApp());
+    await tester.pumpWidget(const QrscPCApp());
 
     // Verify that the app title is displayed.
     expect(find.text('EYM Agent'), findsOneWidget);

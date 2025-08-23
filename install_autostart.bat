@@ -36,14 +36,14 @@ echo.
 
 :: 現在のディレクトリを取得
 set "CURRENT_DIR=%~dp0"
-set "EXE_PATH=%CURRENT_DIR%eym_agent.exe"
+set "EXE_PATH=%CURRENT_DIR%qrsc_pc.exe"
 
 :: EXEファイルの存在確認
 if not exist "%EXE_PATH%" (
-    echo ❌ EYM Agentの実行ファイルが見つかりません。
+    echo ❌ QRSC_PCの実行ファイルが見つかりません。
     echo.
     echo 確認してください:
-    echo - eym_agent.exe が同じフォルダにあるか
+    echo - qrsc_pc.exe が同じフォルダにあるか
     echo - ファイル名が正しいか
     echo.
     echo 検索パス: %EXE_PATH%

@@ -357,9 +357,10 @@ class _MainScreenState extends State<MainScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
         title: const Row(
           children: [
-            Icon(Icons.network_check, color: Colors.blue),
+            Icon(Icons.network_check, color: Colors.black),
             SizedBox(width: 8),
             Text('IPアドレス設定'),
           ],
@@ -384,8 +385,8 @@ class _MainScreenState extends State<MainScreen>
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.blue.shade50,
-                border: Border.all(color: Colors.blue.shade200),
+                color: Colors.white,
+                border: Border.all(color: Colors.black),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
@@ -393,17 +394,13 @@ class _MainScreenState extends State<MainScreen>
                 children: [
                   Row(
                     children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: Colors.blue.shade700,
-                        size: 16,
-                      ),
+                      Icon(Icons.info_outline, color: Colors.black, size: 16),
                       const SizedBox(width: 4),
                       Text(
                         'IPアドレスの確認方法',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Colors.blue.shade700,
+                          color: Colors.black,
                           fontSize: 12,
                         ),
                       ),
@@ -414,7 +411,7 @@ class _MainScreenState extends State<MainScreen>
                     '1. コマンドプロンプトを開く\n'
                     '2. "ipconfig" を実行\n'
                     '3. IPv4アドレスを確認',
-                    style: TextStyle(fontSize: 11, color: Colors.blue.shade800),
+                    style: TextStyle(fontSize: 11, color: Colors.black),
                   ),
                 ],
               ),
@@ -422,9 +419,18 @@ class _MainScreenState extends State<MainScreen>
           ],
         ),
         actions: [
-          TextButton(
+          ElevatedButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('キャンセル'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
+              side: const BorderSide(color: Colors.black, width: 1),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text('キャンセル', style: TextStyle(color: Colors.white)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -434,7 +440,16 @@ class _MainScreenState extends State<MainScreen>
                 await _updateIPAddress(context, appState, ipAddress);
               }
             },
-            child: const Text('設定'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
+              side: const BorderSide(color: Colors.black, width: 1),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text('設定', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -960,6 +975,7 @@ class _MainScreenState extends State<MainScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: Consumer<AppState>(
         builder: (context, appState, child) {
           return Column(
@@ -990,6 +1006,7 @@ class _MainScreenState extends State<MainScreen>
       children: [
         const SizedBox(height: 8),
         Card(
+          color: Colors.white,
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -1001,17 +1018,13 @@ class _MainScreenState extends State<MainScreen>
                       appState.isServerRunning
                           ? Icons.check_circle
                           : Icons.error,
-                      color: appState.isServerRunning
-                          ? Colors.green
-                          : Colors.red,
+                      color: Colors.black,
                     ),
                     const SizedBox(width: 8),
                     Text(
                       appState.isServerRunning ? 'サーバー稼働中' : 'サーバー停止中',
                       style: TextStyle(
-                        color: appState.isServerRunning
-                            ? Colors.green
-                            : Colors.red,
+                        color: Colors.black,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -1022,9 +1035,7 @@ class _MainScreenState extends State<MainScreen>
                         appState.isServerRunning
                             ? Icons.stop
                             : Icons.play_arrow,
-                        color: appState.isServerRunning
-                            ? Colors.red
-                            : Colors.green,
+                        color: Colors.black,
                       ),
                       onPressed: appState.isLoading
                           ? null
@@ -1047,23 +1058,19 @@ class _MainScreenState extends State<MainScreen>
                     padding: const EdgeInsets.all(12),
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
-                      color: Colors.blue.shade50,
-                      border: Border.all(color: Colors.blue.shade200),
+                      color: Colors.white,
+                      border: Border.all(color: Colors.black),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       children: [
-                        Icon(
-                          Icons.info_outline,
-                          color: Colors.blue.shade700,
-                          size: 20,
-                        ),
+                        Icon(Icons.info_outline, color: Colors.black, size: 20),
                         const SizedBox(width: 8),
                         const Text(
                           '最初にIP設定からIPアドレスを設定してください',
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
-                            color: Colors.blue,
+                            color: Colors.black,
                           ),
                         ),
                       ],
@@ -1081,7 +1088,7 @@ class _MainScreenState extends State<MainScreen>
                         icon: const Icon(Icons.network_check, size: 20),
                         label: const Text('IP設定'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
+                          backgroundColor: Colors.black,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
@@ -1100,7 +1107,7 @@ class _MainScreenState extends State<MainScreen>
                         icon: const Icon(Icons.qr_code, size: 20),
                         label: const Text('QRコード表示'),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
+                          backgroundColor: Colors.black,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
@@ -1141,6 +1148,7 @@ class _MainScreenState extends State<MainScreen>
   /// 設定テーブル
   Widget _buildSettingsTable(BuildContext context, AppState appState) {
     return Card(
+      color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -1158,14 +1166,10 @@ class _MainScreenState extends State<MainScreen>
                   'ドラッグして並び替え',
                   style: Theme.of(
                     context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
+                  ).textTheme.bodySmall?.copyWith(color: Colors.black),
                 ),
                 const SizedBox(width: 8),
-                Icon(
-                  Icons.drag_indicator,
-                  size: 16,
-                  color: Colors.grey.shade600,
-                ),
+                Icon(Icons.drag_indicator, size: 16, color: Colors.black),
               ],
             ),
             const SizedBox(height: 16),
@@ -1189,8 +1193,21 @@ class _MainScreenState extends State<MainScreen>
               children: [
                 ElevatedButton(
                   onPressed: appState.isLoading ? null : _resetSettings,
-                  child: const Text('リセット'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
+                    side: const BorderSide(color: Colors.black, width: 1),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'リセット',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
+
                 const Spacer(),
               ],
             ),
@@ -1253,7 +1270,7 @@ class _MainScreenState extends State<MainScreen>
                                 border: Border(
                                   bottom: BorderSide(
                                     color: isSelected
-                                        ? Theme.of(context).colorScheme.primary
+                                        ? Colors.black
                                         : Colors.transparent,
                                     width: 2,
                                   ),
@@ -1265,7 +1282,7 @@ class _MainScreenState extends State<MainScreen>
                                   Icon(
                                     Icons.drag_handle,
                                     size: 14,
-                                    color: Colors.grey.shade600,
+                                    color: Colors.black,
                                   ),
                                   const SizedBox(width: 4),
                                   Icon(Icons.folder, size: 16),
@@ -1273,11 +1290,7 @@ class _MainScreenState extends State<MainScreen>
                                   Text(
                                     tabName,
                                     style: TextStyle(
-                                      color: isSelected
-                                          ? Theme.of(
-                                              context,
-                                            ).colorScheme.primary
-                                          : null,
+                                      color: isSelected ? Colors.black : null,
                                       fontWeight: isSelected
                                           ? FontWeight.bold
                                           : null,
@@ -1287,7 +1300,7 @@ class _MainScreenState extends State<MainScreen>
                                   Icon(
                                     Icons.edit,
                                     size: 12,
-                                    color: Colors.grey.shade600,
+                                    color: Colors.black,
                                   ),
                                 ],
                               ),
@@ -1299,6 +1312,8 @@ class _MainScreenState extends State<MainScreen>
                   ),
                 )
               : TabBar(
+                  indicatorColor: Colors.black,
+                  dividerColor: Colors.white,
                   controller: _tabController,
                   isScrollable: true,
                   tabAlignment: TabAlignment.start,
@@ -1312,15 +1327,14 @@ class _MainScreenState extends State<MainScreen>
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.folder, size: 16),
+                            Icon(Icons.folder, size: 16, color: Colors.black),
                             const SizedBox(width: 4),
-                            Text(tabName),
-                            const SizedBox(width: 4),
-                            Icon(
-                              Icons.edit,
-                              size: 12,
-                              color: Colors.grey.shade600,
+                            Text(
+                              tabName,
+                              style: TextStyle(color: Colors.black),
                             ),
+                            const SizedBox(width: 4),
+                            Icon(Icons.edit, size: 12, color: Colors.black),
                           ],
                         ),
                       ),
@@ -1336,8 +1350,8 @@ class _MainScreenState extends State<MainScreen>
           icon: const Icon(Icons.add, size: 20),
           tooltip: 'タブを追加',
           style: IconButton.styleFrom(
-            backgroundColor: Colors.green.shade50,
-            foregroundColor: Colors.green.shade700,
+            backgroundColor: Colors.black,
+            foregroundColor: Colors.white,
           ),
         ),
         const SizedBox(width: 4),
@@ -1345,11 +1359,13 @@ class _MainScreenState extends State<MainScreen>
         // タブ削除ボタン（タブが1つの場合はリセット機能）
         IconButton(
           onPressed: _removeTab,
-          icon: const Icon(Icons.remove, size: 20),
+          icon: const Icon(Icons.remove, size: 20, color: Colors.black),
           tooltip: _totalTabs > 1 ? 'タブを削除' : 'タブをリセット',
           style: IconButton.styleFrom(
-            backgroundColor: Colors.red.shade50,
-            foregroundColor: Colors.red.shade700,
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            side: const BorderSide(color: Colors.black, width: 1),
+            shape: const CircleBorder(),
           ),
         ),
       ],
@@ -1509,67 +1525,6 @@ class _MainScreenState extends State<MainScreen>
     _saveSettingsQuietly();
   }
 
-  /// タブの並び替え（ドラッグ&ドロップ）
-  // void _reorderTabs(int oldIndex, int newIndex) {
-  //   if (oldIndex < newIndex) {
-  //     newIndex -= 1;
-  //   }
-
-  //   print('🔄 タブドラッグ&ドロップ並び替え: $oldIndex -> $newIndex');
-
-  //   // 現在のタブ情報をコピー
-  //   final reorderedTabs = List<TabInfo>.from(_tabInfos);
-
-  //   // タブ情報を並び替え（名前のみ移動、ショートカット設定は元の位置に残す）
-  //   final movedTabName = reorderedTabs[oldIndex].name;
-  //   final targetTabName = reorderedTabs[newIndex].name;
-
-  //   // タブ名のみを交換
-  //   reorderedTabs[oldIndex] = reorderedTabs[oldIndex].copyWith(
-  //     name: targetTabName,
-  //   );
-  //   reorderedTabs[newIndex] = reorderedTabs[newIndex].copyWith(
-  //     name: movedTabName,
-  //   );
-
-  //   setState(() {
-  //     _tabInfos = reorderedTabs;
-
-  //     // TabControllerを再作成
-  //     final currentIndex = _tabController.index;
-  //     _tabController.dispose();
-  //     _tabController = TabController(length: _totalTabs, vsync: this);
-
-  //     // 現在選択されているタブのインデックスを調整
-  //     int newCurrentIndex = currentIndex;
-  //     if (currentIndex == oldIndex) {
-  //       // 移動されたタブが選択されていた場合
-  //       newCurrentIndex = newIndex;
-  //     } else if (currentIndex > oldIndex && currentIndex <= newIndex) {
-  //       // 選択されたタブが左にシフトされる場合
-  //       newCurrentIndex = currentIndex - 1;
-  //     } else if (currentIndex < oldIndex && currentIndex >= newIndex) {
-  //       // 選択されたタブが右にシフトされる場合
-  //       newCurrentIndex = currentIndex + 1;
-  //     }
-
-  //     _tabController.animateTo(newCurrentIndex);
-  //   });
-
-  //   // タブ情報のみを保存（ショートカット設定は変更しない）
-  //   _saveTabInfoOnly();
-
-  //   // UIを強制的に更新
-  //   if (mounted) {
-  //     setState(() {});
-
-  //     Future.delayed(const Duration(milliseconds: 100), () {
-  //       if (mounted) {
-  //         setState(() {});
-  //       }
-  //     });
-  //   }
-  // }
   void _reorderTabs(int oldIndex, int newIndex) async {
     if (oldIndex < newIndex) newIndex -= 1;
 
@@ -1699,6 +1654,11 @@ class _MainScreenState extends State<MainScreen>
     }
 
     return Card(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: Colors.black, width: 1),
+        borderRadius: BorderRadius.circular(12),
+      ),
       key: ValueKey('${currentTabIndex}_$relativeButtonId'),
       margin: const EdgeInsets.only(bottom: 8.0),
       child: Padding(
@@ -1712,11 +1672,7 @@ class _MainScreenState extends State<MainScreen>
                 width: 24,
                 height: 40,
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Icon(
-                  Icons.drag_handle,
-                  color: Colors.grey.shade600,
-                  size: 20,
-                ),
+                child: Icon(Icons.drag_handle, color: Colors.black, size: 20),
               ),
             ),
 
@@ -1736,19 +1692,23 @@ class _MainScreenState extends State<MainScreen>
                   TextField(
                     controller: controllerIndex < _nameControllers.length
                         ? _nameControllers[controllerIndex]
-                        : TextEditingController(
-                            text: '$relativeButtonId',
-                          ),
+                        : TextEditingController(text: '$relativeButtonId'),
                     decoration: const InputDecoration(
                       labelText: '名前',
                       border: OutlineInputBorder(),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1.0),
+                      ),
                       isDense: true,
                       contentPadding: EdgeInsets.symmetric(
                         horizontal: 8,
                         vertical: 8,
                       ),
                     ),
-                    style: const TextStyle(fontSize: 14),
+                    style: const TextStyle(fontSize: 14, color: Colors.black),
                   ),
 
                   const SizedBox(height: 8),
@@ -1762,13 +1722,19 @@ class _MainScreenState extends State<MainScreen>
                       labelText: 'パス',
                       hintText: 'アプリケーションパスまたはURL',
                       border: OutlineInputBorder(),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1.0),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1.0),
+                      ),
                       isDense: true,
                       contentPadding: EdgeInsets.symmetric(
                         horizontal: 8,
                         vertical: 8,
                       ),
                     ),
-                    style: const TextStyle(fontSize: 12),
+                    style: const TextStyle(fontSize: 12, color: Colors.black),
                   ),
                 ],
               ),
@@ -1836,7 +1802,7 @@ class _MainScreenState extends State<MainScreen>
           height: 32,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: Colors.grey.shade300),
+            border: Border.all(color: Colors.black),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(4),
@@ -1869,30 +1835,26 @@ class _MainScreenState extends State<MainScreen>
   /// デフォルトアイコンを構築
   Widget _buildDefaultIcon(Shortcut shortcut) {
     IconData iconData;
-    Color iconColor = Colors.grey.shade600;
+    Color iconColor = Colors.black;
 
     if (shortcut.path.startsWith('http://') ||
         shortcut.path.startsWith('https://')) {
       iconData = Icons.language;
-      iconColor = Colors.blue.shade600;
     } else if (shortcut.path.toLowerCase().endsWith('.exe')) {
       iconData = Icons.desktop_windows;
-      iconColor = Colors.green.shade600;
     } else if (shortcut.path.isEmpty) {
       iconData = Icons.add_circle_outline;
-      iconColor = Colors.grey.shade400;
     } else {
       iconData = Icons.launch;
-      iconColor = Colors.orange.shade600;
     }
 
     return Container(
       width: 32,
       height: 32,
       decoration: BoxDecoration(
-        color: iconColor.withOpacity(0.1),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: iconColor.withOpacity(0.3)),
+        border: Border.all(color: iconColor),
       ),
       child: Icon(iconData, size: 20, color: iconColor),
     );
@@ -1901,6 +1863,7 @@ class _MainScreenState extends State<MainScreen>
   /// ドラッグ&ドロップエリア
   Widget _buildDropArea(BuildContext context) {
     return Card(
+      color: Colors.white,
       child: DropTarget(
         onDragDone: (detail) {
           print('ドラッグ&ドロップ検出: ${detail.files.length}個のファイル');
@@ -1926,11 +1889,11 @@ class _MainScreenState extends State<MainScreen>
           decoration: BoxDecoration(
             color: _isDragging
                 ? Theme.of(context).colorScheme.primaryContainer
-                : Theme.of(context).colorScheme.surfaceContainerHighest,
+                : Colors.white,
             border: Border.all(
               color: _isDragging
                   ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.outline,
+                  : Colors.white,
               width: 2,
               style: BorderStyle.solid,
             ),
@@ -1944,7 +1907,7 @@ class _MainScreenState extends State<MainScreen>
                 size: 64,
                 color: _isDragging
                     ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.onSurfaceVariant,
+                    : Colors.black,
               ),
               const SizedBox(height: 16),
               Text(
@@ -1952,7 +1915,7 @@ class _MainScreenState extends State<MainScreen>
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: _isDragging
                       ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                      : Colors.black,
                 ),
               ),
               const SizedBox(height: 8),
@@ -1972,8 +1935,8 @@ class _MainScreenState extends State<MainScreen>
                 icon: const Icon(Icons.folder_open, size: 20),
                 label: const Text('ファイルを選択'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
                     vertical: 12,
@@ -2290,16 +2253,13 @@ class _MainScreenState extends State<MainScreen>
       ),
     );
 
-    print(
-      'アイコン変更ダイアログ: currentTabIndex=$currentTabIndex, relativeButtonId=$relativeButtonId, shortcut.name=${shortcut.name}',
-    );
-
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
         title: const Row(
           children: [
-            Icon(Icons.image, color: Colors.blue),
+            Icon(Icons.image, color: Colors.black),
             SizedBox(width: 8),
             Text('アイコン変更'),
           ],
@@ -2317,8 +2277,8 @@ class _MainScreenState extends State<MainScreen>
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  border: Border.all(color: Colors.grey.shade300),
+                  color: Colors.white,
+                  border: Border.all(color: Colors.black),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -2336,8 +2296,8 @@ class _MainScreenState extends State<MainScreen>
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  border: Border.all(color: Colors.blue.shade200),
+                  color: Colors.white,
+                  border: Border.all(color: Colors.black),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
@@ -2345,17 +2305,13 @@ class _MainScreenState extends State<MainScreen>
                   children: [
                     Row(
                       children: [
-                        Icon(
-                          Icons.info_outline,
-                          color: Colors.blue.shade700,
-                          size: 16,
-                        ),
+                        Icon(Icons.info_outline, color: Colors.black, size: 16),
                         const SizedBox(width: 4),
                         Text(
                           'サポートされる画像形式',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: Colors.blue.shade700,
+                            color: Colors.black,
                             fontSize: 12,
                           ),
                         ),
@@ -2365,10 +2321,7 @@ class _MainScreenState extends State<MainScreen>
                     Text(
                       'PNG, JPG, JPEG, BMP, GIF, ICO, WEBP\n'
                       '※ 自動的に512x512ピクセルの超高解像度にリサイズされます',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.blue.shade800,
-                      ),
+                      style: TextStyle(fontSize: 11, color: Colors.black),
                     ),
                   ],
                 ),
@@ -2379,7 +2332,7 @@ class _MainScreenState extends State<MainScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('キャンセル'),
+            child: const Text('キャンセル', style: TextStyle(color: Colors.black)),
           ),
           ElevatedButton.icon(
             onPressed: () async {
@@ -2387,7 +2340,15 @@ class _MainScreenState extends State<MainScreen>
               await _selectAndProcessIcon(buttonId);
             },
             icon: const Icon(Icons.folder_open, size: 20),
-            label: const Text('画像を選択'),
+            label: const Text('画像を選択', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
           ),
           if (shortcut.iconPath != null && shortcut.iconPath!.isNotEmpty)
             TextButton(
@@ -2395,7 +2356,10 @@ class _MainScreenState extends State<MainScreen>
                 Navigator.of(context).pop();
                 await _resetToDefaultIcon(buttonId);
               },
-              child: const Text('デフォルトに戻す'),
+              child: const Text(
+                'デフォルトに戻す',
+                style: TextStyle(color: Colors.black),
+              ),
             ),
         ],
       ),
@@ -2881,6 +2845,7 @@ class _MainScreenState extends State<MainScreen>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
         title: const Text('設定をリセット'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -2892,8 +2857,8 @@ class _MainScreenState extends State<MainScreen>
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.orange.shade50,
-                  border: Border.all(color: Colors.orange.shade200),
+                  color: Colors.white,
+                  border: Border.all(color: Colors.black),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
@@ -2901,17 +2866,13 @@ class _MainScreenState extends State<MainScreen>
                   children: [
                     Row(
                       children: [
-                        Icon(
-                          Icons.info_outline,
-                          color: Colors.orange.shade700,
-                          size: 16,
-                        ),
+                        Icon(Icons.info_outline, color: Colors.black, size: 16),
                         const SizedBox(width: 4),
                         Text(
                           'リセット内容',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: Colors.orange.shade700,
+                            color: Colors.black,
                             fontSize: 12,
                           ),
                         ),
@@ -2922,10 +2883,7 @@ class _MainScreenState extends State<MainScreen>
                       '• 「タブ 1」のみ残して他のタブを削除\n'
                       '• 全てのショートカットをクリア\n'
                       '• カスタムアイコンもクリア',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.orange.shade800,
-                      ),
+                      style: TextStyle(fontSize: 11, color: Colors.black),
                     ),
                   ],
                 ),
@@ -2934,8 +2892,8 @@ class _MainScreenState extends State<MainScreen>
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  border: Border.all(color: Colors.blue.shade200),
+                  color: Colors.white,
+                  border: Border.all(color: Colors.black),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
@@ -2943,17 +2901,13 @@ class _MainScreenState extends State<MainScreen>
                   children: [
                     Row(
                       children: [
-                        Icon(
-                          Icons.info_outline,
-                          color: Colors.blue.shade700,
-                          size: 16,
-                        ),
+                        Icon(Icons.info_outline, color: Colors.black, size: 16),
                         const SizedBox(width: 4),
                         Text(
                           'リセット内容',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: Colors.blue.shade700,
+                            color: Colors.black,
                             fontSize: 12,
                           ),
                         ),
@@ -2964,10 +2918,7 @@ class _MainScreenState extends State<MainScreen>
                       '• 全てのショートカットをクリア\n'
                       '• カスタムアイコンもクリア\n'
                       '• タブ名を「タブ 1」にリセット',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.blue.shade800,
-                      ),
+                      style: TextStyle(fontSize: 11, color: Colors.black),
                     ),
                   ],
                 ),
@@ -2978,11 +2929,19 @@ class _MainScreenState extends State<MainScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('キャンセル'),
+            child: const Text('キャンセル', style: TextStyle(color: Colors.black)),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              foregroundColor: Colors.white,
+              side: const BorderSide(color: Colors.black, width: 1),
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
             child: const Text('リセット'),
           ),
         ],

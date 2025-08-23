@@ -36,7 +36,7 @@ void main() async {
     await windowManager.setPreventClose(true);
   });
 
-  runApp(const EYMAgentApp());
+  runApp(const QrscPCApp());
 }
 
 /// 単一インスタンス制御
@@ -66,8 +66,8 @@ Future<bool> _checkSingleInstance() async {
   }
 }
 
-class EYMAgentApp extends StatelessWidget {
-  const EYMAgentApp({super.key});
+class QrscPCApp extends StatelessWidget {
+  const QrscPCApp({super.key});
 
   @override
   Widget build(BuildContext context) {

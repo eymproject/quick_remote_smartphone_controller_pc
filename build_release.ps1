@@ -63,7 +63,7 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host "ビルド成功！" -ForegroundColor Green
     Write-Host "========================================" -ForegroundColor Green
     
-    $exePath = "build\windows\x64\runner\Release\eym_agent.exe"
+    $exePath = "build\windows\x64\runner\Release\qrsc_pc.exe"
     if (Test-Path $exePath) {
         $fileInfo = Get-Item $exePath
         Write-Host "実行ファイル: $exePath" -ForegroundColor Green
@@ -80,7 +80,7 @@ if ($LASTEXITCODE -eq 0) {
     if ($createPackage -eq "y" -or $createPackage -eq "Y") {
         Write-Host "`n5. 配布用パッケージを作成中..." -ForegroundColor Yellow
         
-        $packageDir = "EYM_Agent_Windows_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
+        $packageDir = "QRSC_Pc_Windows_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
         New-Item -ItemType Directory -Path $packageDir -Force | Out-Null
         
         # 実行ファイルとDLLをコピー

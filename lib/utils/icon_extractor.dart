@@ -432,7 +432,7 @@ try {
   /// アイコンキャッシュディレクトリを取得
   static String getIconCacheDir() {
     final appDataDir = Platform.environment['APPDATA'] ?? '';
-    return path.join(appDataDir, 'EYM_Agent', 'icons');
+    return path.join(appDataDir, 'QRSC_Pc', 'icons');
   }
 
   /// 指定されたアイコンファイルを削除
