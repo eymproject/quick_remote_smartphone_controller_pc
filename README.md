@@ -28,7 +28,7 @@ EYM Agentが正常に動作するためには、Windows Defenderファイアウ�
 
 ### 1. EYM Agent起動
 
-1. `eym_agent.exe` をダブルクリック
+1. `qrsc_pc.exe` をダブルクリック
 2. サーバーが自動的に起動します
 3. IPアドレスとポート番号が表示されます
 
@@ -83,7 +83,7 @@ EYM Agentが正常に動作するためには、Windows Defenderファイアウ�
 
 ```
 EYM Agent/
-├── eym_agent.exe          # メインアプリケーション
+├── qrsc_pc.exe          # メインアプリケーション
 ├── setup_firewall.bat    # ファイアウォール設定
 ├── remove_firewall.bat   # ファイアウォール設定削除
 └── README.md             # このファイル

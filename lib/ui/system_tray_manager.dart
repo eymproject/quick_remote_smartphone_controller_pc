@@ -1,13 +1,11 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:system_tray/system_tray.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:logger/logger.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
-import '../server/http_server.dart';
 
 /// システムトレイ管理クラス
 class SystemTrayManager {
@@ -33,10 +31,7 @@ class SystemTrayManager {
       _logger.i('システムトレイアイコンパス: $iconPath');
 
       // システムトレイアイコンを設定
-      await _systemTray.initSystemTray(
-        title: "EYM Agent",
-        iconPath: iconPath,
-      );
+      await _systemTray.initSystemTray(title: "EYM Agent", iconPath: iconPath);
 
       // コンテキストメニューを設定
       await _setupContextMenu();
@@ -59,7 +54,7 @@ class SystemTrayManager {
 
       // 一時ディレクトリにアイコンファイルを作成
       final tempDir = await getTemporaryDirectory();
-      final iconFile = File(path.join(tempDir.path, 'eym_agent_tray.ico'));
+      final iconFile = File(path.join(tempDir.path, 'qrsc_pc_tray.ico'));
 
       // アイコンファイルが既に存在する場合は使用
       if (iconFile.existsSync()) {
@@ -76,7 +71,7 @@ class SystemTrayManager {
       return _iconPath;
     } catch (e) {
       _logger.e('アイコンファイル準備エラー', error: e);
-      
+
       // フォールバック: 実行ファイルのアイコンを使用
       try {
         return Platform.resolvedExecutable;
@@ -92,12 +87,12 @@ class SystemTrayManager {
     // 16x16の最小限のICOファイルを生成
     // ICOファイルヘッダー + 1つのアイコンエントリ + ビットマップデータ
     final List<int> iconData = [];
-    
+
     // ICOファイルヘッダー (6バイト)
     iconData.addAll([0x00, 0x00]); // Reserved (0)
     iconData.addAll([0x01, 0x00]); // Type (1 = ICO)
     iconData.addAll([0x01, 0x00]); // Count (1 icon)
-    
+
     // アイコンディレクトリエントリ (16バイト)
     iconData.add(0x10); // Width (16)
     iconData.add(0x10); // Height (16)
@@ -105,9 +100,14 @@ class SystemTrayManager {
     iconData.add(0x00); // Reserved
     iconData.addAll([0x01, 0x00]); // Color planes (1)
     iconData.addAll([0x20, 0x00]); // Bits per pixel (32)
-    iconData.addAll([0x00, 0x04, 0x00, 0x00]); // Size of bitmap data (1024 bytes)
+    iconData.addAll([
+      0x00,
+      0x04,
+      0x00,
+      0x00,
+    ]); // Size of bitmap data (1024 bytes)
     iconData.addAll([0x16, 0x00, 0x00, 0x00]); // Offset to bitmap data (22)
-    
+
     // ビットマップヘッダー (40バイト)
     iconData.addAll([0x28, 0x00, 0x00, 0x00]); // Header size (40)
     iconData.addAll([0x10, 0x00, 0x00, 0x00]); // Width (16)
@@ -120,7 +120,7 @@ class SystemTrayManager {
     iconData.addAll([0x00, 0x00, 0x00, 0x00]); // Y pixels per meter
     iconData.addAll([0x00, 0x00, 0x00, 0x00]); // Colors used
     iconData.addAll([0x00, 0x00, 0x00, 0x00]); // Important colors
-    
+
     // ピクセルデータ (16x16 = 256 pixels, 4 bytes each = 1024 bytes)
     // シンプルな青いアイコンを作成
     for (int y = 0; y < 16; y++) {
@@ -134,12 +134,12 @@ class SystemTrayManager {
         }
       }
     }
-    
+
     // ANDマスク (16x16 bits = 32 bytes)
     for (int i = 0; i < 32; i++) {
       iconData.add(0x00); // すべて表示
     }
-    
+
     return Uint8List.fromList(iconData);
   }
 
@@ -149,19 +149,10 @@ class SystemTrayManager {
 
     // サーバー状態表示
     await menu.buildFrom([
-      MenuItemLabel(
-        label: 'EYM Agent',
-        enabled: false,
-      ),
+      MenuItemLabel(label: 'EYM Agent', enabled: false),
       MenuSeparator(),
-      MenuItemLabel(
-        label: '🟢 サーバー実行中',
-        enabled: false,
-      ),
-      MenuItemLabel(
-        label: 'ポート: 8080',
-        enabled: false,
-      ),
+      MenuItemLabel(label: '🟢 サーバー実行中', enabled: false),
+      MenuItemLabel(label: 'ポート: 8080', enabled: false),
       MenuSeparator(),
       MenuItemLabel(
         label: '📱 ウィンドウを表示',
@@ -171,24 +162,15 @@ class SystemTrayManager {
         label: '📋 QRコードを表示',
         onClicked: (menuItem) => _showQRCode(),
       ),
-      MenuItemLabel(
-        label: '⚙️ 設定',
-        onClicked: (menuItem) => _showSettings(),
-      ),
+      MenuItemLabel(label: '⚙️ 設定', onClicked: (menuItem) => _showSettings()),
       MenuSeparator(),
       MenuItemLabel(
         label: '🔄 サーバー再起動',
         onClicked: (menuItem) => _restartServer(),
       ),
-      MenuItemLabel(
-        label: '⏹️ サーバー停止',
-        onClicked: (menuItem) => _stopServer(),
-      ),
+      MenuItemLabel(label: '⏹️ サーバー停止', onClicked: (menuItem) => _stopServer()),
       MenuSeparator(),
-      MenuItemLabel(
-        label: '❌ 終了',
-        onClicked: (menuItem) => _exitApplication(),
-      ),
+      MenuItemLabel(label: '❌ 終了', onClicked: (menuItem) => _exitApplication()),
     ]);
 
     await _systemTray.setContextMenu(menu);
@@ -200,21 +182,15 @@ class SystemTrayManager {
 
     try {
       final Menu menu = Menu();
-      
+
       await menu.buildFrom([
-        MenuItemLabel(
-          label: 'EYM Agent',
-          enabled: false,
-        ),
+        MenuItemLabel(label: 'EYM Agent', enabled: false),
         MenuSeparator(),
         MenuItemLabel(
           label: isRunning ? '🟢 サーバー実行中' : '🔴 サーバー停止中',
           enabled: false,
         ),
-        MenuItemLabel(
-          label: 'ポート: $port',
-          enabled: false,
-        ),
+        MenuItemLabel(label: 'ポート: $port', enabled: false),
         MenuSeparator(),
         MenuItemLabel(
           label: '📱 ウィンドウを表示',
@@ -225,14 +201,12 @@ class SystemTrayManager {
           onClicked: (menuItem) => _showQRCode(),
           enabled: isRunning,
         ),
-        MenuItemLabel(
-          label: '⚙️ 設定',
-          onClicked: (menuItem) => _showSettings(),
-        ),
+        MenuItemLabel(label: '⚙️ 設定', onClicked: (menuItem) => _showSettings()),
         MenuSeparator(),
         MenuItemLabel(
           label: isRunning ? '🔄 サーバー再起動' : '▶️ サーバー開始',
-          onClicked: (menuItem) => isRunning ? _restartServer() : _startServer(),
+          onClicked: (menuItem) =>
+              isRunning ? _restartServer() : _startServer(),
         ),
         if (isRunning)
           MenuItemLabel(
@@ -247,14 +221,11 @@ class SystemTrayManager {
       ]);
 
       await _systemTray.setContextMenu(menu);
-      
+
       // トレイアイコンのツールチップを更新
       await _systemTray.setToolTip(
-        isRunning 
-          ? 'EYM Agent - 実行中 (ポート: $port)'
-          : 'EYM Agent - 停止中'
+        isRunning ? 'EYM Agent - 実行中 (ポート: $port)' : 'EYM Agent - 停止中',
       );
-      
     } catch (e) {
       _logger.e('システムトレイメニュー更新エラー', error: e);
     }

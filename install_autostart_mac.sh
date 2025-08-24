@@ -17,14 +17,14 @@ echo ""
 
 # 現在のディレクトリを取得
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-APP_PATH="$SCRIPT_DIR/eym_agent.app"
+APP_PATH="$SCRIPT_DIR/qrsc_pc.app"
 
 # アプリケーションファイルの存在確認
 if [ ! -d "$APP_PATH" ]; then
     echo "❌ EYM Agentのアプリケーションが見つかりません。"
     echo ""
     echo "確認してください:"
-    echo "- eym_agent.app が同じフォルダにあるか"
+    echo "- qrsc_pc.app が同じフォルダにあるか"
     echo "- ファイル名が正しいか"
     echo ""
     echo "検索パス: $APP_PATH"

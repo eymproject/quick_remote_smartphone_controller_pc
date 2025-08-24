@@ -1,18 +1,18 @@
 @echo off
 chcp 65001 >nul
-title EYM Agent ファイアウォール設定削除
+title QRSC_PC ファイアウォール設定削除
 
 echo.
 echo ========================================
-echo   EYM Agent ファイアウォール設定削除
+echo   QRSC_PC ファイアウォール設定削除
 echo ========================================
 echo.
-echo このツールはEYM Agentのファイアウォール設定を削除します。
-echo アンインストール時やトラブルシューティング時に使用してください。
+echo このツールはQRSC_PCのために追加した
+echo Windows Defenderファイアウォールの設定を削除します。
 echo.
-echo 削除内容:
-echo - ポート8080（TCP）の受信許可ルール
-echo - プログラム名: "EYM Agent"
+echo 削除対象:
+echo - ルール名: "QRSC_PC"
+echo - ポート8080（TCP）の受信許可
 echo.
 
 :: 管理者権限チェック
@@ -34,11 +34,11 @@ echo ✓ 管理者権限を確認しました。
 echo.
 
 :: 確認メッセージ
-echo ⚠️  本当にEYM Agentのファイアウォール設定を削除しますか？
+echo ⚠️ 本当にQRSC_PCのファイアウォール設定を削除しますか？
 echo.
 echo 削除すると:
 echo - スマホからPCへの接続ができなくなります
-echo - 再度使用する場合は setup_firewall.bat を実行する必要があります
+echo - 再度使用する場合は setup_firewall.bat を実行してください
 echo.
 set /p confirm="削除を実行しますか？ (y/N): "
 
@@ -46,8 +46,7 @@ if /i not "%confirm%"=="y" (
     echo.
     echo キャンセルしました。設定は変更されていません。
     echo.
-    echo 何かキーを押して終了...
-    pause >nul
+    pause
     exit /b 0
 )
 
@@ -55,24 +54,27 @@ echo.
 echo ファイアウォール設定を削除中...
 echo.
 
-:: EYM Agentのルールを削除
-netsh advfirewall firewall delete rule name="EYM Agent"
+:: ルール削除（ルール名ベース）
+netsh advfirewall firewall delete rule name="QRSC_PC" >nul 2>&1
+
+:: 念のためポート指定でも削除（ルール名が変わっている場合に対応）
+netsh advfirewall firewall delete rule protocol=TCP localport=8080 >nul 2>&1
 
 if %errorlevel% == 0 (
     echo.
     echo ✅ ファイアウォール設定を削除しました！
     echo.
-    echo 削除された設定:
-    echo - ルール名: EYM Agent
-    echo - ポート: 8080（TCP）
+    echo 削除された内容:
+    echo - ルール名: QRSC_PC
+    echo - ポート: 8080 (TCP)
     echo.
     echo 📝 注意事項:
-    echo - EYM Agentは正常に動作しなくなります
+    echo - QRSC_PCは正常に動作しなくなります
     echo - 再度使用する場合は setup_firewall.bat を実行してください
     echo.
 ) else (
     echo.
-    echo ⚠️  ファイアウォール設定の削除に失敗しました。
+    echo ⚠️ ファイアウォール設定の削除に失敗しました。
     echo.
     echo 考えられる原因:
     echo - 該当するルールが存在しない
@@ -82,7 +84,7 @@ if %errorlevel% == 0 (
     echo 手動削除方法:
     echo 1. Windows設定 → Windows セキュリティ
     echo 2. ファイアウォールとネットワーク保護 → 詳細設定
-    echo 3. 受信の規則 → "EYM Agent" を右クリック → 削除
+    echo 3. 受信の規則 → "QRSC_PC" を右クリック → 削除
     echo.
 )
 

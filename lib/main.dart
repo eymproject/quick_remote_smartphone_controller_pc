@@ -20,8 +20,8 @@ void main() async {
 
   // ウィンドウ設定
   WindowOptions windowOptions = const WindowOptions(
-    size: Size(900, 650),
-    minimumSize: Size(900, 650), // 最小サイズを設定
+    size: Size(900, 640),
+    minimumSize: Size(900, 640), // 最小サイズを設定
     center: true,
     backgroundColor: Colors.transparent,
     skipTaskbar: false,
@@ -36,7 +36,7 @@ void main() async {
     await windowManager.setPreventClose(true);
   });
 
-  runApp(const EYMAgentApp());
+  runApp(const QrscPCApp());
 }
 
 /// 単一インスタンス制御
@@ -66,8 +66,8 @@ Future<bool> _checkSingleInstance() async {
   }
 }
 
-class EYMAgentApp extends StatelessWidget {
-  const EYMAgentApp({super.key});
+class QrscPCApp extends StatelessWidget {
+  const QrscPCApp({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,6 @@
 {
-    "name": "eym_agent",
-    "short_name": "eym_agent",
+    "name": "qrsc_pc",
+    "short_name": "qrsc_pc",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
