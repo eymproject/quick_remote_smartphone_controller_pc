@@ -20,8 +20,8 @@ void main() async {
 
   // ウィンドウ設定
   WindowOptions windowOptions = const WindowOptions(
-    size: Size(900, 650),
-    minimumSize: Size(900, 650), // 最小サイズを設定
+    size: Size(900, 640),
+    minimumSize: Size(900, 640), // 最小サイズを設定
     center: true,
     backgroundColor: Colors.transparent,
     skipTaskbar: false,
