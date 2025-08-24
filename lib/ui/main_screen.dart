@@ -2615,9 +2615,9 @@ class _MainScreenState extends State<MainScreen>
       builder: (context) => AlertDialog(
         title: const Row(
           children: [
-            Icon(Icons.edit, color: Colors.blue),
+            Icon(Icons.edit, color: Colors.black),
             SizedBox(width: 8),
-            Text('タブ名を変更'),
+            Text('タブ名を変更', style: TextStyle(color: Colors.black)),
           ],
         ),
         content: Column(
@@ -2630,8 +2630,15 @@ class _MainScreenState extends State<MainScreen>
               controller: controller,
               decoration: const InputDecoration(
                 labelText: 'タブ名',
+                labelStyle: TextStyle(color: Colors.black),
                 hintText: 'タブ 1',
                 border: OutlineInputBorder(),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black, width: 1.0),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.black, width: 1.0),
+                ),
                 prefixIcon: Icon(Icons.folder),
               ),
               autofocus: true,
@@ -2647,7 +2654,7 @@ class _MainScreenState extends State<MainScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('キャンセル'),
+            child: const Text('キャンセル', style: TextStyle(color: Colors.black)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -2656,7 +2663,7 @@ class _MainScreenState extends State<MainScreen>
                 Navigator.of(context).pop(name);
               }
             },
-            child: const Text('変更'),
+            child: const Text('変更', style: TextStyle(color: Colors.black)),
           ),
         ],
       ),
