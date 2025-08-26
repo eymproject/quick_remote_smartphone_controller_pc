@@ -9,6 +9,8 @@ import 'ui/system_tray_manager.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  print('🚀 EYM Agent 起動開始');
+
   // 単一インスタンス制御
   if (!await _checkSingleInstance()) {
     print('EYM Agent は既に実行中です。既存のインスタンスを表示します。');
@@ -17,6 +19,7 @@ void main() async {
 
   // ウィンドウマネージャーを初期化
   await windowManager.ensureInitialized();
+  print('🚀 ウィンドウマネージャー初期化完了');
 
   // ウィンドウ設定
   WindowOptions windowOptions = const WindowOptions(
@@ -34,8 +37,10 @@ void main() async {
     await windowManager.focus();
     // ウィンドウを閉じる時にシステムトレイに最小化
     await windowManager.setPreventClose(true);
+    print('🚀 ウィンドウ表示完了');
   });
 
+  print('🚀 アプリケーション起動');
   runApp(const QrscPCApp());
 }
 

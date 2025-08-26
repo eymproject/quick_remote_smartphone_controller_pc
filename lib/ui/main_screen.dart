@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:desktop_drop/desktop_drop.dart';
@@ -10,7 +10,6 @@ import 'dart:async';
 import 'app_state.dart';
 import 'qr_code_dialog.dart';
 import 'system_tray_manager.dart';
-import '../utils/firewall_manager.dart';
 import '../core/models.dart';
 import '../utils/icon_extractor.dart';
 import '../utils/image_processor.dart';
@@ -35,6 +34,9 @@ class _MainScreenState extends State<MainScreen>
   int _totalTabs = 1; // 初期は2つのタブ
   List<TabInfo> _tabInfos = []; // タブ情報リスト
 
+  // タブスクロール用のScrollController
+  final ScrollController _tabScrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -43,14 +45,15 @@ class _MainScreenState extends State<MainScreen>
     _initializeControllers();
     _initializeTabController();
 
-    // アプリ起動時にアイコンキャッシュをクリアして強制的にリフレッシュ
-    _clearIconCacheOnStartup();
+    // アプリ起動時にアイコンファイルの整合性をチェックして修復
+    _validateAndFixIconFilesOnStartup();
   }
 
   @override
   void dispose() {
     windowManager.removeListener(this);
     _tabController.dispose();
+    _tabScrollController.dispose(); // ScrollControllerを破棄
     for (final controller in _nameControllers) {
       controller.dispose();
     }
@@ -66,14 +69,25 @@ class _MainScreenState extends State<MainScreen>
   void _initializeControllers() {
     final appState = context.read<AppState>();
 
+    // AppStateの初期化完了を待つ
+    if (appState.isLoading) {
+      // AppStateの初期化が完了してから再度実行
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted) {
+          _initializeControllers();
+        }
+      });
+      return;
+    }
+
     // 全てのショートカットを取得（タブ別に整理）
     final allShortcuts = appState.config.shortcuts;
     final maxTabIndex = allShortcuts.isEmpty
         ? 0
         : allShortcuts.map((s) => s.tabIndex).reduce((a, b) => a > b ? a : b);
-    _totalTabs = maxTabIndex;
+    _totalTabs = maxTabIndex + 1; // 修正: インデックスは0ベースなので+1が必要
 
-    // 最小2つのタブを保証
+    // 最小1つのタブを保証
     if (_totalTabs < 1) {
       _totalTabs = 1;
     }
@@ -97,6 +111,20 @@ class _MainScreenState extends State<MainScreen>
       print('  - タブ$i: ${_tabInfos[i].name}');
     }
 
+    // 既存のコントローラーをクリア
+    for (final controller in _nameControllers) {
+      controller.dispose();
+    }
+    for (final controller in _pathControllers) {
+      controller.dispose();
+    }
+    for (final controller in _iconControllers) {
+      controller.dispose();
+    }
+    _nameControllers.clear();
+    _pathControllers.clear();
+    _iconControllers.clear();
+
     // 各タブの6つのボタン分のコントローラーを作成
     for (int tabIndex = 0; tabIndex < _totalTabs; tabIndex++) {
       for (int buttonIndex = 0; buttonIndex < 6; buttonIndex++) {
@@ -109,7 +137,7 @@ class _MainScreenState extends State<MainScreen>
             print('🚀 デフォルトショートカット作成: タブ$tabIndex, ボタン$relativeButtonId');
             return Shortcut(
               buttonId: relativeButtonId,
-              name: '$relativeButtonId',
+              name: '', // 空の名前に変更
               path: '',
               tabIndex: tabIndex,
             );
@@ -131,11 +159,41 @@ class _MainScreenState extends State<MainScreen>
         _iconControllers.add(iconController); // アイコンコントローラーを追加
       }
     }
+
+    print('🚀 コントローラー初期化完了: ${_nameControllers.length}個のコントローラー');
+
+    // TabControllerを再初期化（コントローラー初期化後に実行）
+    _reinitializeTabController();
   }
 
   /// TabControllerを初期化
   void _initializeTabController() {
     _tabController = TabController(length: _totalTabs, vsync: this);
+  }
+
+  /// TabControllerを再初期化（コントローラー初期化後に実行）
+  void _reinitializeTabController() {
+    print('🔄 TabController再初期化開始: $_totalTabs個のタブ');
+
+    // 既存のTabControllerを破棄
+    _tabController.dispose();
+
+    // 新しいTabControllerを作成
+    _tabController = TabController(length: _totalTabs, vsync: this);
+
+    // タブの状態を強制的に更新
+    if (mounted) {
+      setState(() {});
+
+      // 少し遅延してもう一度更新（TabControllerの初期化を確実にするため）
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted) {
+          setState(() {});
+        }
+      });
+    }
+
+    print('✅ TabController再初期化完了');
   }
 
   /// 自動保存（デバウンス付き）
@@ -196,7 +254,7 @@ class _MainScreenState extends State<MainScreen>
           shortcuts.add(
             Shortcut(
               buttonId: buttonId,
-              name: name.isEmpty ? '$buttonId' : name,
+              name: name, // 空の場合はそのまま空文字列を保存
               path: path,
               args: [], // 引数は空のリストに固定
               tabIndex: tabIndex,
@@ -269,6 +327,22 @@ class _MainScreenState extends State<MainScreen>
   void onWindowMinimize() async {
     // 最小化時もシステムトレイに隠す
     await SystemTrayManager.hideToTray();
+  }
+
+  /// アプリ起動時にアイコンファイルの整合性をチェックして修復
+  Future<void> _validateAndFixIconFilesOnStartup() async {
+    // アプリ起動時は少し遅延してから実行（初期化完了を待つ）
+    Future.delayed(const Duration(milliseconds: 1000), () async {
+      if (mounted) {
+        final appState = context.read<AppState>();
+        await _validateAndFixIconFiles(appState.config.shortcuts);
+
+        // 修復後にUIを更新
+        if (mounted) {
+          setState(() {});
+        }
+      }
+    });
   }
 
   /// アイコンファイルの整合性を検証して修復
@@ -346,12 +420,18 @@ class _MainScreenState extends State<MainScreen>
   void _showIPAddressDialog(BuildContext context, AppState appState) {
     final TextEditingController controller = TextEditingController();
 
-    // 現在のIPアドレスを取得
-    final serverInfo = appState.server.getServerInfo();
-    final currentUrl = serverInfo['url'] as String?;
-    if (currentUrl != null) {
-      final uri = Uri.parse(currentUrl);
-      controller.text = uri.host;
+    // 保存されたIPアドレスを取得（優先）
+    if (appState.config.ipAddress != null &&
+        appState.config.ipAddress!.isNotEmpty) {
+      controller.text = appState.config.ipAddress!;
+    } else {
+      // フォールバック: 現在のサーバーURLから取得
+      final serverInfo = appState.server.getServerInfo();
+      final currentUrl = serverInfo['url'] as String?;
+      if (currentUrl != null) {
+        final uri = Uri.parse(currentUrl);
+        controller.text = uri.host;
+      }
     }
 
     showDialog(
@@ -468,8 +548,8 @@ class _MainScreenState extends State<MainScreen>
         await appState.stopServer();
       }
 
-      // IPアドレスを更新（サーバー内部で設定）
-      await appState.server.updateIPAddress(ipAddress);
+      // IPアドレスを更新（設定ファイルにも保存）
+      await appState.updateIPAddress(ipAddress);
 
       // サーバーを再起動
       await appState.startServer();
@@ -477,7 +557,7 @@ class _MainScreenState extends State<MainScreen>
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('IPアドレスを $ipAddress に設定しました'),
+            content: Text('IPアドレスを $ipAddress に設定・保存しました'),
             backgroundColor: Colors.green,
           ),
         );
@@ -491,245 +571,6 @@ class _MainScreenState extends State<MainScreen>
           ),
         );
       }
-    }
-  }
-
-  /// ファイアウォール設定ダイアログを表示
-  void _showFirewallSetupDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.security, color: Colors.orange),
-            SizedBox(width: 8),
-            Text('ファイアウォール設定'),
-          ],
-        ),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('EYM Agentが正常に動作するために、Windowsファイアウォールの設定を行います。'),
-            SizedBox(height: 12),
-            Text('設定内容:'),
-            Text('• ポート8080（TCP）の受信を許可'),
-            Text('• プログラム名: "EYM Agent"'),
-            SizedBox(height: 12),
-            Text(
-              '※ 管理者権限が必要です',
-              style: TextStyle(
-                color: Colors.orange,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('キャンセル'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await _setupFirewall(context);
-            },
-            child: const Text('設定実行'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// ファイアウォール削除確認ダイアログを表示
-  void _showFirewallRemoveDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.warning, color: Colors.red),
-            SizedBox(width: 8),
-            Text('ファイアウォール設定削除'),
-          ],
-        ),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('EYM Agentのファイアウォール設定を削除します。'),
-            SizedBox(height: 12),
-            Text('削除すると:'),
-            Text('• スマホからPCへの接続ができなくなります'),
-            Text('• 再度使用する場合は設定が必要です'),
-            SizedBox(height: 12),
-            Text(
-              '本当に削除しますか？',
-              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('キャンセル'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await _removeFirewall(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('削除実行'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// ファイアウォール設定を実行
-  Future<void> _setupFirewall(BuildContext context) async {
-    try {
-      final result = await FirewallManager.setupFirewall();
-
-      if (context.mounted) {
-        if (result.success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(result.message),
-              backgroundColor: Colors.green,
-              duration: const Duration(seconds: 4),
-            ),
-          );
-        } else {
-          if (result.needsAdmin) {
-            _showAdminRequiredDialog(context);
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(result.message),
-                backgroundColor: Colors.red,
-                duration: const Duration(seconds: 4),
-              ),
-            );
-          }
-        }
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('ファイアウォール設定中にエラーが発生しました: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  /// ファイアウォール設定を削除
-  Future<void> _removeFirewall(BuildContext context) async {
-    try {
-      final result = await FirewallManager.removeFirewall();
-
-      if (context.mounted) {
-        if (result.success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(result.message),
-              backgroundColor: Colors.green,
-              duration: const Duration(seconds: 4),
-            ),
-          );
-        } else {
-          if (result.needsAdmin) {
-            _showAdminRequiredDialog(context);
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(result.message),
-                backgroundColor: Colors.red,
-                duration: const Duration(seconds: 4),
-              ),
-            );
-          }
-        }
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('ファイアウォール設定削除中にエラーが発生しました: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  /// アイコンキャッシュクリアダイアログを表示
-  void _showIconCacheClearDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.refresh, color: Colors.purple),
-            SizedBox(width: 8),
-            Text('アイコン更新'),
-          ],
-        ),
-        content: const Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('アイコンキャッシュをクリアして、高解像度アイコンを再生成します。'),
-            SizedBox(height: 12),
-            Text('実行内容:'),
-            Text('• 既存のアイコンキャッシュを削除'),
-            Text('• 512x512の超高解像度でアイコンを再抽出'),
-            Text('• スマホ側でより鮮明なアイコンが表示されます'),
-            SizedBox(height: 12),
-            Text(
-              '※ 処理には少し時間がかかる場合があります',
-              style: TextStyle(
-                color: Colors.orange,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('キャンセル'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.of(context).pop();
-              await _clearIconCacheAndRegenerate(context);
-            },
-            child: const Text('実行'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// アプリ起動時にアイコンキャッシュをクリア
-  Future<void> _clearIconCacheOnStartup() async {
-    try {
-      print('アプリ起動時: アイコンキャッシュクリアを開始');
-      // 起動時は静かにキャッシュをクリアするだけ
-      await IconExtractor.clearIconCache();
-      print('アプリ起動時: アイコンキャッシュクリア完了');
-    } catch (e) {
-      print('アプリ起動時: アイコンキャッシュクリアエラー: $e');
-      // エラーが発生してもアプリケーションは継続
     }
   }
 
@@ -755,221 +596,6 @@ class _MainScreenState extends State<MainScreen>
         }
       });
     }
-  }
-
-  /// アイコンキャッシュをクリアして再生成
-  Future<void> _clearIconCacheAndRegenerate(BuildContext context) async {
-    try {
-      // 処理中ダイアログを表示
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const AlertDialog(
-          content: Row(
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(width: 16),
-              Text('アイコンキャッシュを更新中...'),
-            ],
-          ),
-        ),
-      );
-
-      // アイコンキャッシュをクリア
-      await IconExtractor.clearIconCache();
-
-      // 現在のショートカットからアイコンを再抽出
-      final appState = context.read<AppState>();
-      final shortcuts = List<Shortcut>.from(appState.config.shortcuts);
-      int regeneratedCount = 0;
-
-      for (int i = 0; i < shortcuts.length; i++) {
-        final shortcut = shortcuts[i];
-        if (shortcut.path.isNotEmpty && !shortcut.path.startsWith('http')) {
-          final iconCacheDir = IconExtractor.getIconCacheDir();
-          final iconPath = await IconExtractor.extractIcon(
-            shortcut.path,
-            iconCacheDir,
-          );
-
-          if (iconPath != null) {
-            // ショートカットのアイコンパスを更新
-            shortcuts[i] = shortcuts[i].copyWith(iconPath: iconPath);
-            regeneratedCount++;
-          }
-        }
-      }
-
-      // 設定を保存
-      if (regeneratedCount > 0) {
-        final updatedConfig = appState.config.copyWith(shortcuts: shortcuts);
-        await appState.updateConfig(updatedConfig);
-
-        // UIを更新
-        if (mounted) {
-          setState(() {});
-        }
-      }
-
-      // 処理中ダイアログを閉じる
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('アイコンキャッシュを更新しました（$regeneratedCount個のアイコンを再生成）'),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 4),
-          ),
-        );
-      }
-    } catch (e) {
-      // 処理中ダイアログが表示されている場合は閉じる
-      if (mounted && Navigator.of(context).canPop()) {
-        Navigator.of(context).pop();
-      }
-
-      print('アイコンキャッシュクリアエラー: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('アイコンキャッシュの更新に失敗しました: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  /// 管理者権限が必要な場合のダイアログを表示
-  void _showAdminRequiredDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Row(
-          children: [
-            Icon(Icons.admin_panel_settings, color: Colors.orange),
-            SizedBox(width: 8),
-            Text('ファイアウォール設定について'),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.green.shade50,
-                  border: Border.all(color: Colors.green.shade200),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.check_circle,
-                      color: Colors.green.shade700,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    const Expanded(
-                      child: Text(
-                        '✅ 通常権限でもファイアウォール設定が可能です',
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  border: Border.all(color: Colors.blue.shade200),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.security,
-                          color: Colors.blue.shade700,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        const Expanded(
-                          child: Text(
-                            '🔒 自動UAC昇格機能',
-                            style: TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'ファイアウォール設定時に自動的にUAC（ユーザーアカウント制御）ダイアログが表示されます。',
-                      style: TextStyle(fontSize: 13),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                '手順:',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                '1. 「ファイアウォール設定」ボタンをクリック\n'
-                '2. UACダイアログが表示されたら「はい」をクリック\n'
-                '3. 自動的にファイアウォール設定が完了',
-                style: TextStyle(fontSize: 13),
-              ),
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.amber.shade50,
-                  border: Border.all(color: Colors.amber.shade200),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.info_outline,
-                      color: Colors.amber.shade700,
-                      size: 16,
-                    ),
-                    const SizedBox(width: 6),
-                    const Expanded(
-                      child: Text(
-                        '管理者として実行する必要はありません',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('理解しました'),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -1222,125 +848,191 @@ class _MainScreenState extends State<MainScreen>
   Widget _buildTabControls(BuildContext context) {
     return Row(
       children: [
-        // ドラッグ可能なタブバー
+        // ドラッグ可能なタブバー（マウスホイールスクロール対応）
         Expanded(
-          child: _totalTabs > 1
-              ? SizedBox(
-                  height: 48, // 高さを明示的に指定
-                  child: ReorderableListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _totalTabs,
-                    onReorder: (oldIndex, newIndex) =>
-                        _reorderTabs(oldIndex, newIndex),
-                    buildDefaultDragHandles: false,
-                    itemBuilder: (context, index) {
-                      final tabName = index < _tabInfos.length
-                          ? _tabInfos[index].name
-                          : 'タブ ${index + 1}';
-                      final isSelected = _tabController.index == index;
+          child: SizedBox(
+            height: 48, // 高さを明示的に指定
+            child: Listener(
+              onPointerSignal: (pointerSignal) {
+                if (pointerSignal is PointerScrollEvent) {
+                  // マウスホイールでの横スクロールを実装（速度を上げる）
+                  final delta = pointerSignal.scrollDelta.dy;
+                  final currentOffset = _tabScrollController.hasClients
+                      ? _tabScrollController.offset
+                      : 0.0;
+                  final maxExtent = _tabScrollController.hasClients
+                      ? _tabScrollController.position.maxScrollExtent
+                      : 0.0;
+                  final newOffset = (currentOffset + delta * 1.5).clamp(
+                    0.0,
+                    maxExtent,
+                  );
 
-                      return Container(
-                        key: ValueKey('tab_$index'),
-                        margin: const EdgeInsets.only(right: 4),
-                        child: ReorderableDragStartListener(
-                          index: index,
-                          child: GestureDetector(
-                            onTap: () {
-                              print(
-                                'タブ$indexをクリック: 現在のインデックス=${_tabController.index}',
-                              );
-                              if (_tabController.index != index) {
-                                _tabController.animateTo(index);
-                                // UIを強制的に更新してフォーカス状態を反映
-                                setState(() {});
-                              }
-                            },
-                            onDoubleTap: () => _showTabRenameDialog(index),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? Theme.of(
-                                        context,
-                                      ).colorScheme.primary.withOpacity(0.1)
-                                    : Colors.transparent,
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: isSelected
-                                        ? Colors.black
-                                        : Colors.transparent,
-                                    width: 2,
-                                  ),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.drag_handle,
-                                    size: 14,
-                                    color: Colors.black,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Icon(Icons.folder, size: 16),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    tabName,
-                                    style: TextStyle(
-                                      color: isSelected ? Colors.black : null,
-                                      fontWeight: isSelected
-                                          ? FontWeight.bold
-                                          : null,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Icon(
-                                    Icons.edit,
-                                    size: 12,
-                                    color: Colors.black,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                )
-              : TabBar(
-                  indicatorColor: Colors.black,
-                  dividerColor: Colors.white,
-                  controller: _tabController,
-                  isScrollable: true,
-                  tabAlignment: TabAlignment.start,
-                  tabs: List.generate(_totalTabs, (index) {
+                  if (_tabScrollController.hasClients && maxExtent > 0) {
+                    _tabScrollController.animateTo(
+                      newOffset,
+                      duration: const Duration(milliseconds: 100),
+                      curve: Curves.easeOut,
+                    );
+                  }
+                }
+              },
+              child: SingleChildScrollView(
+                controller: _tabScrollController,
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: List.generate(_totalTabs, (index) {
                     final tabName = index < _tabInfos.length
                         ? _tabInfos[index].name
                         : 'タブ ${index + 1}';
-                    return Tab(
-                      child: GestureDetector(
-                        onDoubleTap: () => _showTabRenameDialog(index),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.folder, size: 16, color: Colors.black),
-                            const SizedBox(width: 4),
-                            Text(
-                              tabName,
-                              style: TextStyle(color: Colors.black),
+                    final isSelected = _tabController.index == index;
+
+                    return Container(
+                      key: ValueKey('tab_$index'),
+                      margin: const EdgeInsets.only(right: 4),
+                      child: Draggable<int>(
+                        data: index,
+                        feedback: Material(
+                          elevation: 4,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
                             ),
-                            const SizedBox(width: 4),
-                            Icon(Icons.edit, size: 12, color: Colors.black),
-                          ],
+                            decoration: BoxDecoration(
+                              color: Color.fromRGBO(158, 158, 158, 0.8),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.folder,
+                                  size: 16,
+                                  color: Colors.white,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  tabName,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        childWhenDragging: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Color.fromRGBO(158, 158, 158, 0.3),
+                            border: Border(
+                              bottom: BorderSide(
+                                color: Color.fromRGBO(158, 158, 158, 0.5),
+                                width: 2,
+                              ),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.drag_handle,
+                                size: 14,
+                                color: Colors.grey,
+                              ),
+                              const SizedBox(width: 4),
+                              Icon(Icons.folder, size: 16, color: Colors.grey),
+                              const SizedBox(width: 4),
+                              Text(
+                                tabName,
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
+                        child: DragTarget<int>(
+                          onAccept: (draggedIndex) {
+                            if (draggedIndex != index) {
+                              _reorderTabs(draggedIndex, index);
+                            }
+                          },
+                          builder: (context, candidateData, rejectedData) {
+                            final isHovering = candidateData.isNotEmpty;
+                            return GestureDetector(
+                              onTap: () {
+                                print(
+                                  'タブ$indexをクリック: 現在のインデックス=${_tabController.index}',
+                                );
+                                if (_tabController.index != index) {
+                                  _tabController.animateTo(index);
+                                  // UIを強制的に更新してフォーカス状態を反映
+                                  setState(() {});
+                                }
+                              },
+                              onDoubleTap: () => _showTabRenameDialog(index),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isHovering
+                                      ? Colors.blue.withOpacity(0.2)
+                                      : isSelected
+                                      ? Theme.of(
+                                          context,
+                                        ).colorScheme.primary.withOpacity(0.1)
+                                      : Colors.transparent,
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: isSelected
+                                          ? Colors.black
+                                          : Colors.transparent,
+                                      width: 2,
+                                    ),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.drag_handle,
+                                      size: 14,
+                                      color: Colors.black,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Icon(Icons.folder, size: 16),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      tabName,
+                                      style: TextStyle(
+                                        color: isSelected ? Colors.black : null,
+                                        fontWeight: isSelected
+                                            ? FontWeight.bold
+                                            : null,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      Icons.edit,
+                                      size: 12,
+                                      color: Colors.black,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     );
                   }),
                 ),
+              ),
+            ),
+          ),
         ),
         const SizedBox(width: 8),
 
@@ -1745,13 +1437,13 @@ class _MainScreenState extends State<MainScreen>
             // 操作ボタン
             Column(
               children: [
-                IconButton(
-                  icon: const Icon(Icons.play_arrow, size: 20),
-                  onPressed: shortcut.path.isNotEmpty
-                      ? () => _testShortcut(buttonId)
-                      : null,
-                  tooltip: 'テスト実行',
-                ),
+                // IconButton(
+                //   icon: const Icon(Icons.play_arrow, size: 20),
+                //   onPressed: shortcut.path.isNotEmpty
+                //       ? () => _testShortcut(buttonId)
+                //       : null,
+                //   tooltip: 'テスト実行',
+                // ),
                 IconButton(
                   icon: const Icon(Icons.image, size: 20),
                   onPressed: shortcut.path.isNotEmpty
@@ -2019,7 +1711,7 @@ class _MainScreenState extends State<MainScreen>
     });
   }
 
-  /// 空いているスロットを見つける（現在のタブから開始、右側のタブを確認してから新しいタブを作成）
+  /// 空いているスロットを見つける（現在のタブが満杯の場合は新しいタブを作成）
   int _findEmptySlot() {
     final currentTabIndex = _tabController.index;
     final startIndex = currentTabIndex * 6;
@@ -2035,25 +1727,7 @@ class _MainScreenState extends State<MainScreen>
       }
     }
 
-    // 現在のタブが満杯の場合、右側（現在のタブより後ろ）のタブで空きスロットを探す
-    for (
-      int tabIndex = currentTabIndex + 1;
-      tabIndex < _totalTabs;
-      tabIndex++
-    ) {
-      final tabStartIndex = tabIndex * 6;
-      for (
-        int i = tabStartIndex;
-        i < tabStartIndex + 6 && i < _pathControllers.length;
-        i++
-      ) {
-        if (_pathControllers[i].text.isEmpty) {
-          return i;
-        }
-      }
-    }
-
-    // 右側のタブにも空きがない場合、新しいタブを作成
+    // 現在のタブが満杯の場合、新しいタブを作成
     _addTab();
 
     // 新しく作成されたタブの最初のスロットを返す
@@ -2115,7 +1789,7 @@ class _MainScreenState extends State<MainScreen>
     if (shortcutIndex != -1) {
       currentShortcuts[shortcutIndex] = currentShortcuts[shortcutIndex]
           .copyWith(
-            name: '$relativeButtonId',
+            name: '', // 空の名前に変更
             path: '',
             iconPath: '', // アイコンパスをクリア
           );
@@ -2534,43 +2208,6 @@ class _MainScreenState extends State<MainScreen>
     // UIを更新
     setState(() {});
   }
-
-  /// デフォルトアイコンに戻す
-  // Future<void> _resetToDefaultIcon(int buttonId) async {
-  //   final appState = context.read<AppState>();
-  //   final currentShortcuts = List<Shortcut>.from(appState.config.shortcuts);
-
-  //   // buttonIdからタブインデックスと相対ボタンIDを計算
-  //   final tabIndex = (buttonId - 1) ~/ 6;
-  //   final relativeButtonId = ((buttonId - 1) % 6) + 1;
-
-  //   // 該当するショートカットのアイコンパスをクリア（タブインデックスと相対ボタンIDで検索）
-  //   final shortcutIndex = currentShortcuts.indexWhere(
-  //     (s) => s.tabIndex == tabIndex && s.buttonId == relativeButtonId,
-  //   );
-
-  //   if (shortcutIndex != -1) {
-  //     currentShortcuts[shortcutIndex] = currentShortcuts[shortcutIndex]
-  //         .copyWith(iconPath: '');
-
-  //     final updatedConfig = appState.config.copyWith(
-  //       shortcuts: currentShortcuts,
-  //     );
-  //     await appState.updateConfig(updatedConfig);
-
-  //     // UIを更新
-  //     setState(() {});
-
-  //     if (mounted) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(
-  //           content: Text('デフォルトアイコンに戻しました'),
-  //           backgroundColor: Colors.green,
-  //         ),
-  //       );
-  //     }
-  //   }
-  // }
 
   Future<void> _resetToDefaultIcon(int buttonId) async {
     final appState = context.read<AppState>();

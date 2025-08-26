@@ -10,8 +10,20 @@ class ShortcutStore {
   
   /// 設定ファイルのパスを取得
   static Future<String> get _filePath async {
-    final directory = await getApplicationSupportDirectory();
-    return '${directory.path}${Platform.pathSeparator}$_fileName';
+    try {
+      final directory = await getApplicationSupportDirectory();
+      final filePath = '${directory.path}${Platform.pathSeparator}$_fileName';
+      _logger.i('設定ファイルパス: $filePath');
+      return filePath;
+    } catch (e) {
+      _logger.e('ApplicationSupportDirectoryの取得に失敗、フォールバック使用', error: e);
+      // フォールバック: 実行ファイルと同じディレクトリに保存
+      final executablePath = Platform.resolvedExecutable;
+      final executableDir = File(executablePath).parent.path;
+      final fallbackPath = '$executableDir${Platform.pathSeparator}$_fileName';
+      _logger.i('フォールバック設定ファイルパス: $fallbackPath');
+      return fallbackPath;
+    }
   }
 
   /// ショートカット設定を読み込み
