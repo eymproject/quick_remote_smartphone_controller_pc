@@ -217,11 +217,13 @@ class ShortcutConfig {
   final int protocolVersion;
   final List<Shortcut> shortcuts;
   final List<TabInfo> tabs;
+  final String? ipAddress; // IPアドレス設定を追加
 
   const ShortcutConfig({
     this.protocolVersion = 1,
     required this.shortcuts,
     this.tabs = const [],
+    this.ipAddress, // IPアドレス設定を追加
   });
 
   /// JSONからShortcutConfigオブジェクトを作成
@@ -234,6 +236,7 @@ class ShortcutConfig {
       tabs: (json['tabs'] as List<dynamic>?)
           ?.map((e) => TabInfo.fromJson(e as Map<String, dynamic>))
           .toList() ?? [],
+      ipAddress: json['ipAddress'] as String?, // IPアドレス設定を読み込み
     );
   }
 
@@ -243,6 +246,7 @@ class ShortcutConfig {
       'protocolVersion': protocolVersion,
       'shortcuts': shortcuts.map((e) => e.toJson()).toList(),
       'tabs': tabs.map((e) => e.toJson()).toList(),
+      if (ipAddress != null) 'ipAddress': ipAddress, // IPアドレス設定を保存
     };
   }
 
@@ -261,11 +265,13 @@ class ShortcutConfig {
     int? protocolVersion,
     List<Shortcut>? shortcuts,
     List<TabInfo>? tabs,
+    String? ipAddress,
   }) {
     return ShortcutConfig(
       protocolVersion: protocolVersion ?? this.protocolVersion,
       shortcuts: shortcuts ?? this.shortcuts,
       tabs: tabs ?? this.tabs,
+      ipAddress: ipAddress ?? this.ipAddress,
     );
   }
 

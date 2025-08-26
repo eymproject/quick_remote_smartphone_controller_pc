@@ -573,8 +573,8 @@ class EYMServer {
 
     try {
       // デフォルトIPアドレス（ipconfig結果に基づく）
-      _logger.i('デフォルトIPアドレスを使用: 192.168.11.10');
-      return '192.168.11.10';
+      _logger.i('デフォルトIPアドレスを使用: 192.168.1.100');
+      return '192.168.1.100';
       
     } catch (e) {
       _logger.w('IPアドレスの取得に失敗しました: $e');

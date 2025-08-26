@@ -64,7 +64,21 @@ class AppState extends ChangeNotifier {
       } else {
         _config = await ShortcutStore.load();
       }
-      _addLog('設定を読み込みました');
+      _addLog('設定を読み込みました: ${_config.shortcuts.length}個のショートカット');
+      
+      // 保存されたIPアドレス設定を復元
+      if (_config.ipAddress != null && _config.ipAddress!.isNotEmpty) {
+        if (!kIsWeb && _server is EYMServer) {
+          await (_server as EYMServer).updateIPAddress(_config.ipAddress!);
+          _addLog('保存されたIPアドレスを復元しました: ${_config.ipAddress}');
+        }
+      }
+      
+      // 設定ファイルのパスをログに出力（デバッグ用）
+      if (!kIsWeb) {
+        final filePath = await ShortcutStore.getFilePath();
+        _addLog('設定ファイルパス: $filePath');
+      }
 
       // サーバーを開始
       final success = await _server.start();
@@ -211,6 +225,28 @@ class AppState extends ChangeNotifier {
     } catch (e) {
       _logger.e('設定リセット中にエラーが発生しました', error: e);
       _addLog('設定リセット中にエラーが発生しました: $e');
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// IPアドレスを更新
+  Future<void> updateIPAddress(String ipAddress) async {
+    _setLoading(true);
+    try {
+      // サーバーのIPアドレスを更新
+      if (!kIsWeb && _server is EYMServer) {
+        await (_server as EYMServer).updateIPAddress(ipAddress);
+      }
+
+      // 設定にIPアドレスを保存
+      final newConfig = _config.copyWith(ipAddress: ipAddress);
+      await updateConfig(newConfig);
+
+      _addLog('IPアドレスを更新しました: $ipAddress');
+    } catch (e) {
+      _logger.e('IPアドレス更新中にエラーが発生しました', error: e);
+      _addLog('IPアドレス更新中にエラーが発生しました: $e');
     } finally {
       _setLoading(false);
     }
