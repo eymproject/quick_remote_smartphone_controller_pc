@@ -31,7 +31,7 @@ class SystemTrayManager {
       _logger.i('システムトレイアイコンパス: $iconPath');
 
       // システムトレイアイコンを設定
-      await _systemTray.initSystemTray(title: "EYM Agent", iconPath: iconPath);
+      await _systemTray.initSystemTray(title: "QRSC_PC", iconPath: iconPath);
 
       // コンテキストメニューを設定
       await _setupContextMenu();
@@ -149,7 +149,7 @@ class SystemTrayManager {
 
     // サーバー状態表示
     await menu.buildFrom([
-      MenuItemLabel(label: 'EYM Agent', enabled: false),
+      MenuItemLabel(label: 'QRSC_PC', enabled: false),
       MenuSeparator(),
       MenuItemLabel(label: '🟢 サーバー実行中', enabled: false),
       MenuItemLabel(label: 'ポート: 8080', enabled: false),
@@ -184,7 +184,7 @@ class SystemTrayManager {
       final Menu menu = Menu();
 
       await menu.buildFrom([
-        MenuItemLabel(label: 'EYM Agent', enabled: false),
+        MenuItemLabel(label: 'QRSC_PC', enabled: false),
         MenuSeparator(),
         MenuItemLabel(
           label: isRunning ? '🟢 サーバー実行中' : '🔴 サーバー停止中',
@@ -224,7 +224,7 @@ class SystemTrayManager {
 
       // トレイアイコンのツールチップを更新
       await _systemTray.setToolTip(
-        isRunning ? 'EYM Agent - 実行中 (ポート: $port)' : 'EYM Agent - 停止中',
+        isRunning ? 'QRSC_PC - 実行中 (ポート: $port)' : 'QRSC_PC - 停止中',
       );
     } catch (e) {
       _logger.e('システムトレイメニュー更新エラー', error: e);

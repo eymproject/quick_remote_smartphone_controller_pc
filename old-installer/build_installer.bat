@@ -100,7 +100,7 @@ if not exist "README_INSTALLER.md" (
     echo. >> README_INSTALLER.md
     echo ## 使用方法 >> README_INSTALLER.md
     echo 1. インストール完了後、QRSC PC を起動 >> README_INSTALLER.md
-    echo 2. スマートフォンのEYMアプリから接続 >> README_INSTALLER.md
+    echo 2. スマートフォンのQRSCアプリから接続 >> README_INSTALLER.md
     echo 3. QRコードまたは手動でIPアドレスを入力して接続 >> README_INSTALLER.md
 )
 

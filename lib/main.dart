@@ -9,11 +9,11 @@ import 'ui/system_tray_manager.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  print('🚀 EYM Agent 起動開始');
+  print('🚀 QRSC_PC 起動開始');
 
   // 単一インスタンス制御
   if (!await _checkSingleInstance()) {
-    print('EYM Agent は既に実行中です。既存のインスタンスを表示します。');
+    print('QRSC_PC は既に実行中です。既存のインスタンスを表示します。');
     exit(0);
   }
 
@@ -79,7 +79,7 @@ class QrscPCApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => AppState(),
       child: MaterialApp(
-        title: 'EYM Agent',
+        title: 'QRSC_PC',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
             seedColor: Colors.blue,

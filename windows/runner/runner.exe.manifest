@@ -6,7 +6,7 @@
     name="QrscPCApp"
     type="win32"
   />
-  <description>EYM Agent Application</description>
+  <description>QRSC_PC Application</description>
   
   <!-- UAC Settings: Allow UI access and drag-drop functionality -->
   <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">

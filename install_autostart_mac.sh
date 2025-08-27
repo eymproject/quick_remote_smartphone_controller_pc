@@ -1,16 +1,16 @@
 #!/bin/bash
 
-# EYM Agent macOS自動起動設定スクリプト
+# QRSC_PC macOS自動起動設定スクリプト
 
 echo "========================================"
-echo "  EYM Agent macOS自動起動設定"
+echo "  QRSC_PC macOS自動起動設定"
 echo "========================================"
 echo ""
-echo "このスクリプトはEYM AgentをmacOS起動時に"
+echo "このスクリプトはQRSC_PCをmacOS起動時に"
 echo "自動で起動するように設定します。"
 echo ""
 echo "設定内容:"
-echo "- macOS起動時にEYM Agentを自動起動"
+echo "- macOS起動時にQRSC_PCを自動起動"
 echo "- メニューバーに常駐"
 echo "- バックグラウンドで動作"
 echo ""
@@ -21,7 +21,7 @@ APP_PATH="$SCRIPT_DIR/qrsc_pc.app"
 
 # アプリケーションファイルの存在確認
 if [ ! -d "$APP_PATH" ]; then
-    echo "❌ EYM Agentのアプリケーションが見つかりません。"
+    echo "❌ QRSC_PCのアプリケーションが見つかりません。"
     echo ""
     echo "確認してください:"
     echo "- qrsc_pc.app が同じフォルダにあるか"
@@ -34,7 +34,7 @@ if [ ! -d "$APP_PATH" ]; then
     exit 1
 fi
 
-echo "✓ EYM Agentアプリケーションを確認しました。"
+echo "✓ QRSC_PCアプリケーションを確認しました。"
 echo "パス: $APP_PATH"
 echo ""
 
@@ -43,7 +43,7 @@ LAUNCH_AGENTS_DIR="$HOME/Library/LaunchAgents"
 mkdir -p "$LAUNCH_AGENTS_DIR"
 
 # plistファイルのパス
-PLIST_FILE="$LAUNCH_AGENTS_DIR/com.eym.agent.plist"
+PLIST_FILE="$LAUNCH_AGENTS_DIR/com.qrsc.pc.plist"
 
 # plistファイルを作成
 cat > "$PLIST_FILE" << EOF
@@ -52,7 +52,7 @@ cat > "$PLIST_FILE" << EOF
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.eym.agent</string>
+    <string>com.qrsc.pc</string>
     <key>ProgramArguments</key>
     <array>
         <string>open</string>
@@ -73,7 +73,7 @@ if [ $? -eq 0 ]; then
     echo "✅ 自動起動設定が完了しました！"
     echo ""
     echo "設定内容:"
-    echo "- 登録名: com.eym.agent"
+    echo "- 登録名: com.qrsc.pc"
     echo "- アプリケーション: $APP_PATH"
     echo "- 起動方法: メニューバーに常駐"
     echo ""
@@ -81,7 +81,7 @@ if [ $? -eq 0 ]; then
     echo ""
     echo "動作確認:"
     echo "1. Macを再起動"
-    echo "2. メニューバー（画面上部）にEYM Agentアイコンが表示される"
+    echo "2. メニューバー（画面上部）にQRSC_PCアイコンが表示される"
     echo "3. アイコンをクリックでメニュー表示"
     echo "4. スマホから接続テスト"
     echo ""
@@ -110,7 +110,7 @@ else
     echo "手動設定方法:"
     echo "1. システム環境設定 → ユーザとグループ"
     echo "2. ログイン項目タブ"
-    echo "3. + ボタンでEYM Agentを追加"
+    echo "3. + ボタンでQRSC_PCを追加"
     echo "4. \"隠す\" にチェック"
     echo ""
 fi
@@ -118,7 +118,7 @@ fi
 echo ""
 echo "設定確認方法:"
 echo "1. システム環境設定 → ユーザとグループ → ログイン項目"
-echo "2. または Activity Monitor で \"EYM Agent\" を検索"
+echo "2. または Activity Monitor で \"QRSC_PC\" を検索"
 echo ""
 echo "何かキーを押して終了..."
 read -n 1

@@ -72,7 +72,7 @@ class EYMServer {
       _isRunning = true;
 
       final localIP = _getLocalIPAddress();
-      _logger.i('EYM Agentサーバーを開始しました: http://$localIP:${_server!.port}');
+      _logger.i('QRSC_PCサーバーを開始しました: http://$localIP:${_server!.port}');
       _logger.i('Wi-Fi接続: http://$localIP:${_server!.port}');
       _logger.i('USB接続: http://localhost:${_server!.port} (ADB reverse必要)');
 
@@ -108,7 +108,7 @@ class EYMServer {
       _server = null;
       _isRunning = false;
 
-      _logger.i('EYM Agentサーバーを停止しました');
+      _logger.i('QRSC_PCサーバーを停止しました');
     } catch (e, stackTrace) {
       _logger.e('サーバーの停止中にエラーが発生しました', error: e, stackTrace: stackTrace);
     }
@@ -132,7 +132,7 @@ class EYMServer {
     // Ping エンドポイント（スマホ側の接続テスト用）
     router.get('/ping', (Request request) {
       return Response.ok(
-        jsonEncode({'status': 'ok', 'message': 'EYM Agent is running'}),
+        jsonEncode({'status': 'ok', 'message': 'QRSC_PC is running'}),
         headers: {'Content-Type': 'application/json'},
       );
     });

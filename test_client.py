@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-EYM Agent テストクライアント
+QRSC_PC テストクライアント
 
-このスクリプトは、EYM AgentのHTTP/WebSocket APIをテストするためのものです。
+このスクリプトは、QRSC_PCのHTTP/WebSocket APIをテストするためのものです。
 スマホアプリの代わりとして使用できます。
 """
 
@@ -65,7 +65,7 @@ class EYMTestClient:
 def main():
     client = EYMTestClient()
     
-    print("=== EYM Agent Test Client ===")
+    print("=== QRSC_PC Test Client ===")
     print(f"Target: {client.base_url}")
     print()
     

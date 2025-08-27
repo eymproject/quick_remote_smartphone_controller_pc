@@ -110,7 +110,7 @@ class CertificateGenerator {
     buffer.writeln('C = JP');
     buffer.writeln('ST = Tokyo');
     buffer.writeln('L = Tokyo');
-    buffer.writeln('O = EYM Agent');
+    buffer.writeln('O = QRSC_PC');
     buffer.writeln('OU = Development');
     buffer.writeln('CN = $commonName');
     buffer.writeln();

@@ -30,7 +30,7 @@ class WebEYMServer {
       _currentConfig = ShortcutConfig.createDefault();
       _isRunning = true;
       
-      _logger.i('Web版EYM Agent: 設定を読み込みました（HTTPサーバーはWeb版では利用できません）');
+      _logger.i('Web版QRSC_PC: 設定を読み込みました（HTTPサーバーはWeb版では利用できません）');
       _logger.i('注意: Web版ではHTTP/WebSocketサーバー機能は制限されます');
       _logger.i('完全な機能を使用するには、Windows ネイティブ版をご利用ください');
       
@@ -50,7 +50,7 @@ class WebEYMServer {
 
     try {
       _isRunning = false;
-      _logger.i('Web版EYM Agent: 停止しました');
+      _logger.i('Web版QRSC_PC: 停止しました');
     } catch (e, stackTrace) {
       _logger.e('停止中にエラーが発生しました', error: e, stackTrace: stackTrace);
     }

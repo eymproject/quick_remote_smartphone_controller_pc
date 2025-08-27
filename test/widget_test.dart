@@ -9,12 +9,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:qrsc_pc/main.dart';
 
 void main() {
-  testWidgets('EYM Agent app smoke test', (WidgetTester tester) async {
+  testWidgets('QRSC_PC app smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const QrscPCApp());
 
     // Verify that the app title is displayed.
-    expect(find.text('EYM Agent'), findsOneWidget);
+    expect(find.text('QRSC_PC'), findsOneWidget);
 
     // Verify that server status is displayed.
     expect(find.text('サーバー状態'), findsOneWidget);

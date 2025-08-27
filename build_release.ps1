@@ -1,9 +1,9 @@
-# EYM Agent リリースビルドスクリプト
+# QRSC_PC リリースビルドスクリプト
 # PowerShell実行ポリシーの設定が必要な場合があります：
 # Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "EYM Agent リリースビルドを開始します..." -ForegroundColor Cyan
+Write-Host "QRSC_PC リリースビルドを開始します..." -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 
 # 環境確認

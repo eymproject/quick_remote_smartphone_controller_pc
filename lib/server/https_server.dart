@@ -83,7 +83,7 @@ class EYMHttpsServer {
       _isRunning = true;
 
       final localIP = _getLocalIPAddress();
-      _logger.i('EYM Agent HTTPSサーバーを開始しました: https://$localIP:${_server!.port}');
+      _logger.i('QRSC_PC HTTPSサーバーを開始しました: https://$localIP:${_server!.port}');
       _logger.i('Wi-Fi接続: https://$localIP:${_server!.port}');
       _logger.i('USB接続: https://localhost:${_server!.port} (ADB reverse必要)');
 
@@ -104,7 +104,7 @@ class EYMHttpsServer {
       
       final localIP = _getLocalIPAddress();
       final certData = await CertificateGenerator.generateSelfSignedCertificate(
-        commonName: 'EYM Agent',
+        commonName: 'QRSC_PC',
         ipAddresses: [localIP, '127.0.0.1', 'localhost'],
         validityDays: 365,
       );
@@ -142,7 +142,7 @@ class EYMHttpsServer {
       _server = null;
       _isRunning = false;
 
-      _logger.i('EYM Agent HTTPSサーバーを停止しました');
+      _logger.i('QRSC_PC HTTPSサーバーを停止しました');
     } catch (e, stackTrace) {
       _logger.e('サーバーの停止中にエラーが発生しました', error: e, stackTrace: stackTrace);
     }
@@ -166,7 +166,7 @@ class EYMHttpsServer {
     // Ping エンドポイント（スマホ側の接続テスト用）
     router.get('/ping', (Request request) {
       return Response.ok(
-        jsonEncode({'status': 'ok', 'message': 'EYM Agent HTTPS is running'}),
+        jsonEncode({'status': 'ok', 'message': 'QRSC_PC HTTPS is running'}),
         headers: {'Content-Type': 'application/json'},
       );
     });

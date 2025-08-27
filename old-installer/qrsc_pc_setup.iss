@@ -1,5 +1,5 @@
 ; QRSC PC (Quick Remote Smartphone Controller PC) Inno Setup Script
-; EYM Project - スマートフォンからPCを遠隔操作するアプリケーション
+; QRSC - スマートフォンからPCを遠隔操作するアプリケーション
 
 #define MyAppName "QRSC PC"
 #define MyAppVersion "1.0.0"
@@ -127,7 +127,7 @@ begin
     MsgBox('QRSC PCのインストールが完了しました。' + #13#10 + #13#10 +
            '使用方法:' + #13#10 +
            '1. QRSC PCを起動してください' + #13#10 +
-           '2. スマートフォンのEYMアプリから接続してください' + #13#10 +
+           '2. スマートフォンのQRSCアプリから接続してください' + #13#10 +
            '3. 詳細な使用方法は「使用方法」ショートカットをご確認ください', 
            mbInformation, MB_OK);
   end;

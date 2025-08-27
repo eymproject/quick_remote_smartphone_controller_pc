@@ -50,7 +50,7 @@ class AppState extends ChangeNotifier {
   /// ウィンドウ表示コールバックを設定
   void setShowWindowCallback(void Function() callback) {
     if (!kIsWeb && _server is EYMServer) {
-      (_server as EYMServer).setShowWindowCallback(callback);
+      (_server).setShowWindowCallback(callback);
     }
   }
 
@@ -69,7 +69,7 @@ class AppState extends ChangeNotifier {
       // 保存されたIPアドレス設定を復元
       if (_config.ipAddress != null && _config.ipAddress!.isNotEmpty) {
         if (!kIsWeb && _server is EYMServer) {
-          await (_server as EYMServer).updateIPAddress(_config.ipAddress!);
+          await (_server).updateIPAddress(_config.ipAddress!);
           _addLog('保存されたIPアドレスを復元しました: ${_config.ipAddress}');
         }
       }
@@ -236,7 +236,7 @@ class AppState extends ChangeNotifier {
     try {
       // サーバーのIPアドレスを更新
       if (!kIsWeb && _server is EYMServer) {
-        await (_server as EYMServer).updateIPAddress(ipAddress);
+        await (_server).updateIPAddress(ipAddress);
       }
 
       // 設定にIPアドレスを保存

@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 
 /// Windowsファイアウォール管理クラス
 class FirewallManager {
-  static const String ruleName = 'EYM Agent';
+  static const String ruleName = 'QRSC_PC';
   static const int port = 8080;
 
   /// 管理者権限をチェック
@@ -32,7 +32,7 @@ class FirewallManager {
       
       // PowerShellスクリプトの内容を作成
       final scriptContent = '''
-# EYM Agent Firewall Setup Script
+# QRSC_PC Firewall Setup Script
 try {
     \$process = Start-Process -FilePath "${command[0]}" -ArgumentList "${command.skip(1).join('", "')}" -Verb RunAs -Wait -PassThru
     if (\$process.ExitCode -eq 0) {
@@ -203,7 +203,7 @@ try {
       if (!ruleExists) {
         return FirewallResult(
           success: false,
-          message: 'EYM Agentのファイアウォールルールが見つかりません。\n'
+          message: 'QRSC_PCのファイアウォールルールが見つかりません。\n'
               '既に削除されているか、設定されていない可能性があります。',
         );
       }
@@ -228,7 +228,7 @@ try {
           return FirewallResult(
             success: true,
             message: 'ファイアウォール設定を削除しました。\n'
-                'EYM Agentのルールが削除されました。',
+                'QRSC_PCのルールが削除されました。',
           );
         } else {
           return FirewallResult(
@@ -257,7 +257,7 @@ try {
             return FirewallResult(
               success: true,
               message: 'ファイアウォール設定を削除しました。\n'
-                  'EYM Agentのルールが削除されました。',
+                  'QRSC_PCのルールが削除されました。',
             );
           } else {
             return FirewallResult(
@@ -309,8 +309,8 @@ try {
   static String getAdminRequiredMessage() {
     return 'ファイアウォール設定には管理者権限が必要です。\n\n'
         '手順:\n'
-        '1. EYM Agentを終了\n'
-        '2. EYM Agentを右クリック\n'
+        '1. QRSC_PCを終了\n'
+        '2. QRSC_PCを右クリック\n'
         '3. "管理者として実行" を選択\n'
         '4. UACで「はい」をクリック\n\n'
         'または、手動でファイアウォール設定を行ってください:\n'

@@ -5,7 +5,7 @@ import 'package:network_info_plus/network_info_plus.dart';
 /// ネットワーク自動設定クラス
 class NetworkSetup {
   static final Logger _logger = Logger();
-  static const String _serviceName = 'EYM Agent';
+  static const String _serviceName = 'QRSC_PC';
   static const int _defaultPort = 8080;
 
   /// 自動ネットワーク設定を実行

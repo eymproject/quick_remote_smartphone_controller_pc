@@ -1,17 +1,17 @@
 @echo off
 chcp 65001 >nul
-title EYM Agent 自動起動設定
+title QRSC_PC 自動起動設定
 
 echo.
 echo ========================================
-echo   EYM Agent 自動起動設定
+echo   QRSC_PC 自動起動設定
 echo ========================================
 echo.
-echo このツールはEYM AgentをWindows起動時に
+echo このツールはQRSC_PCをWindows起動時に
 echo システムトレイで自動起動するように設定します。
 echo.
 echo 設定内容:
-echo - Windows起動時にEYM Agentを自動起動
+echo - Windows起動時にQRSC_PCを自動起動
 echo - システムトレイに最小化して起動
 echo - バックグラウンドで動作
 echo.
@@ -53,20 +53,20 @@ if not exist "%EXE_PATH%" (
     exit /b 1
 )
 
-echo ✓ EYM Agent実行ファイルを確認しました。
+echo ✓ QRSC_PC実行ファイルを確認しました。
 echo パス: %EXE_PATH%
 echo.
 
 :: レジストリに自動起動を登録
 echo Windows起動時の自動起動を設定中...
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "EYM Agent" /t REG_SZ /d "\"%EXE_PATH%\"" /f >nul 2>&1
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "QRSC_PC" /t REG_SZ /d "\"%EXE_PATH%\"" /f >nul 2>&1
 
 if %errorlevel% == 0 (
     echo.
     echo ✅ 自動起動設定が完了しました！
     echo.
     echo 設定内容:
-    echo - 登録名: EYM Agent
+    echo - 登録名: QRSC_PC
     echo - 実行ファイル: %EXE_PATH%
     echo - 起動方法: システムトレイに最小化
     echo.
@@ -74,7 +74,7 @@ if %errorlevel% == 0 (
     echo.
     echo 動作確認:
     echo 1. PCを再起動
-    echo 2. システムトレイ（画面右下）にEYM Agentアイコンが表示される
+    echo 2. システムトレイ（画面右下）にQRSC_PCアイコンが表示される
     echo 3. アイコンを右クリックでメニュー表示
     echo 4. スマホから接続テスト
     echo.
@@ -100,7 +100,7 @@ if %errorlevel% == 0 (
     echo 手動設定方法:
     echo 1. Win + R キーを押す
     echo 2. "shell:startup" と入力してEnter
-    echo 3. 開いたフォルダにEYM Agentのショートカットを作成
+    echo 3. 開いたフォルダにQRSC_PCのショートカットを作成
     echo 4. ショートカットのプロパティで実行時の大きさを「最小化」に設定
     echo.
 )
@@ -109,7 +109,7 @@ echo.
 echo 設定確認方法:
 echo 1. Win + R → "msconfig" → スタートアップタブ
 echo 2. または タスクマネージャー → スタートアップタブ
-echo 3. "EYM Agent" が有効になっているか確認
+echo 3. "QRSC_PC" が有効になっているか確認
 echo.
 echo 何かキーを押して終了...
 pause >nul

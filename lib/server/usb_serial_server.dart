@@ -94,7 +94,7 @@ class UsbSerialServer {
       // 接続確認メッセージを送信
       _sendMessage({
         'type': 'connected',
-        'message': 'EYM Agent USB接続が確立されました',
+        'message': 'QRSC_PC USB接続が確立されました',
         'shortcuts': _currentConfig.shortcuts.length,
       });
 
