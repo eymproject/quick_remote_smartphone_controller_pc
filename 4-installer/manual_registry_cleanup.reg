@@ -1,0 +1,23 @@
+Windows Registry Editor Version 5.00
+
+; QRSC PC 手動レジストリクリーンアップ
+; このファイルをダブルクリックして実行してください
+
+; 自動起動設定を削除
+[-HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run]
+"QRSC PC"=-
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
+"QRSC PC"=-
+
+; アプリケーション設定を削除
+[-HKEY_CURRENT_USER\Software\QRSC PC]
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\QRSC PC]
+
+; 一般的なアンインストール情報を削除
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\QRSC PC]
+
+[-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{8B5F4A2C-9D3E-4F1A-8C7B-2E9F6A1D5C8E}_is1]
+
+[-HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Uninstall\QRSC PC]
