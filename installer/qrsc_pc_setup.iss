@@ -166,10 +166,79 @@ begin
   end;
 end;
 
-// アンインストール前の確認
+// プロセス存在確認関数
+function IsProcessRunning(ProcessName: String): Boolean;
+var
+  ResultCode: Integer;
+begin
+  Result := False;
+  if Exec('tasklist', '/FI "IMAGENAME eq ' + ProcessName + '"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+  begin
+    Result := (ResultCode = 0);
+  end;
+end;
+
+// 強力なプロセス終了関数
+function ForceKillProcess(ProcessName: String): Boolean;
+var
+  ResultCode: Integer;
+  Attempts: Integer;
+begin
+  Result := False;
+  Attempts := 0;
+  
+  Log('プロセス終了を開始: ' + ProcessName);
+  
+  // 最大3回試行
+  while (Attempts < 3) and IsProcessRunning(ProcessName) do
+  begin
+    Attempts := Attempts + 1;
+    Log('プロセス終了試行 ' + IntToStr(Attempts) + '/3');
+    
+    // 段階1: 通常の終了要求
+    if Attempts = 1 then
+    begin
+      Log('通常終了を試行中...');
+      Exec('taskkill', '/IM ' + ProcessName, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+      Sleep(2000); // 2秒待機
+    end
+    // 段階2: 強制終了
+    else if Attempts = 2 then
+    begin
+      Log('強制終了を試行中...');
+      Exec('taskkill', '/F /IM ' + ProcessName, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+      Sleep(2000); // 2秒待機
+    end
+    // 段階3: 最終手段（PIDベース）
+    else
+    begin
+      Log('PIDベース強制終了を試行中...');
+      Exec('wmic', 'process where name="' + ProcessName + '" delete', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+      Sleep(3000); // 3秒待機
+    end;
+  end;
+  
+  // 最終確認
+  if not IsProcessRunning(ProcessName) then
+  begin
+    Log('プロセス終了成功: ' + ProcessName);
+    Result := True;
+  end
+  else
+  begin
+    Log('プロセス終了失敗: ' + ProcessName + ' (プロセスが残存)');
+    Result := False;
+  end;
+end;
+
+// アンインストール前の確認とプロセス終了
 function InitializeUninstall(): Boolean;
+var
+  ProcessKilled: Boolean;
 begin
   Result := True;
+  
+  // アンインストール確認
   if MsgBox('QRSC PCをアンインストールしますか？' + #13#10 + #13#10 +
             '以下の項目が削除されます:' + #13#10 +
             '• アプリケーションファイル' + #13#10 +
@@ -177,9 +246,48 @@ begin
             '• デスクトップショートカット' + #13#10 +
             '• 自動起動設定' + #13#10 +
             '• ファイアウォール設定' + #13#10 +
-            '• 設定ファイル', 
+            '• 設定ファイル' + #13#10 + #13#10 +
+            '⚠️ 実行中のQRSC PCアプリケーションは自動的に終了されます。', 
             mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDNO then
+  begin
     Result := False;
+    Exit;
+  end;
+  
+  // プロセス存在確認と強制終了
+  if IsProcessRunning('qrsc_pc.exe') then
+  begin
+    Log('QRSC PCプロセスが実行中です。強制終了を開始します。');
+    
+    try
+      ProcessKilled := ForceKillProcess('qrsc_pc.exe');
+      
+      if not ProcessKilled then
+      begin
+        // プロセス終了に失敗した場合の警告
+        if MsgBox('⚠️ QRSC PCプロセスの終了に失敗しました。' + #13#10 + #13#10 +
+                  'アンインストールを続行しますか？' + #13#10 + #13#10 +
+                  '注意: プロセスが残存している場合、一部のファイルが削除されない可能性があります。' + #13#10 + #13#10 +
+                  '推奨: タスクマネージャーでqrsc_pc.exeを手動で終了してから再試行してください。',
+                  mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDNO then
+        begin
+          Result := False;
+          Exit;
+        end;
+      end;
+      
+    except
+      Log('プロセス終了処理で例外が発生しました。アンインストールを続行します。');
+    end;
+  end
+  else
+  begin
+    Log('QRSC PCプロセスは実行されていません。');
+  end;
+  
+  // 最終待機（ファイルハンドルの解放を確実にする）
+  Log('ファイルハンドル解放のため追加待機中...');
+  Sleep(1000);
 end;
 
 // アンインストール完了時のメッセージ
